@@ -1,0 +1,15 @@
+<launch>
+
+  <!-- Launch the robot's transforms -->
+  <node pkg="omnibot_description" type="tf_broadcaster" name="tf_broadcaster" respawn="true"/>
+  
+  <node pkg="openni_camera" type="openni_node" name="openni_camera" output="screen" respawn="true" >
+    <param name="device_type" value="1" />
+    <param name="registration_type" value="1" />
+    <param name="point_cloud_resolution" value="1" />
+    <param name="openni_depth_optical_frame" value="kinect_depth_optical_frame" />
+    <param name="openni_rgb_optical_frame" value="kinect_rgb_optical_frame" />
+    <param name="image_input_format" value="5" />
+  </node>
+  
+</launch>

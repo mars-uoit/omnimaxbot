@@ -1,0 +1,6 @@
+update_min_d: 0.01
+update_min_a: 0.1
+use_map_topic: true
+odom_model_type: omni
+base_frame_id: base_footprint
+

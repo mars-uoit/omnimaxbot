@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package>
+  <name>omnimaxbot</name>
+  <version>0.0.0</version>
+  <description>This metapackage contains the packages required to run the OmniMaxbot</description>
+  <license>BSD</license>
+  <author>Nick Charabaruk</author>
+  <maintainer email="nicholas.charabaruk@uoit.ca">Nick Charabaruk</maintainer>
+  <buildtool_depend>catkin</buildtool_depend>
+  <export>
+    <metapackage/>
+  </export>
+</package>

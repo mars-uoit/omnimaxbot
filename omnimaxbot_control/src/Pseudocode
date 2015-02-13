@@ -1,0 +1,16 @@
+INITIAL
+
+set initial position
+set goal position
+check position of can relative to camera
+  approach can
+
+-------------------------------------------------
+NEXT
+
+lift forks
+move to drop-off location
+lower forks
+check position of can relative to camera
+  move away from can until forks are clear
+return to start position

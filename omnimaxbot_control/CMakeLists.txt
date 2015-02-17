@@ -9,6 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
   move_base_msgs
   roscpp
   geometry_msgs
+  nav_msgs
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -105,6 +107,7 @@ include_directories(
 
 ## Declare a cpp executable
 add_executable(control_node src/control.cpp)
+add_executable(laser_scan_odom_node src/odom.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -112,6 +115,7 @@ add_executable(control_node src/control.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(control_node ${catkin_LIBRARIES})
+target_link_libraries(laser_scan_odom_node ${catkin_LIBRARIES})
 
 #############
 ## Install ##

@@ -22,18 +22,26 @@
   </node>
   
   <!-- Launch robot localization -->
-  <node pkg="robot_localization" type="ukf_localization_node" name="robot_localization">
-    <rosparam file="$(find omnimaxbot_2d_nav)/config/robot_localization_params.yaml" command="load"/>
-    <remap from="/odometry/filtered" to="odom"/>
-  </node>
+  <!-- <node pkg="robot_localization" type="ukf_localization_node" name="robot_localization"> -->
+  <!--   <rosparam file="$(find omnimaxbot_2d_nav)/config/robot_localization_params.yaml" command="load"/> -->
+  <!--   <remap from="/odometry/filtered" to="odom"/> -->
+  <!-- </node> -->
   
 	<!-- Launch robot pose ekf -->
   <!-- <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf" respawn="true"> -->
 	<!--   <remap from="odom" to="omni_odom"/> -->
 	<!--   <remap from="imu_data" to="/imu/data"/> -->
-	<!-- 	<rosparam file="$(find omnimaxbot_2d_nav)/config/ekf_params.yaml" command="load"/> -->
+	<!-- 	 <rosparam file="$(find omnimaxbot_2d_nav)/config/ekf_params.yaml" command="load"/> -->
 	<!--   <remap from="/robot_pose_ekf/odom_combined" to="odom"/> -->
 	<!-- </node> -->
+	
+	<!-- Launch laser scan matcher to simulate odom -->
+	<node pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node" output="screen">
+	  <rosparam file="$(find omnimaxbot_2d_nav)/config/laser_scan_matcher_config.yaml" command="load"/>
+  </node>
+  
+  <!-- Simulate odometry msg from scan matcher -->
+  <node pkg="omnimaxbot_control" type="laser_scan_odom_node" name="laser_scan_odom_node"/>
 	
 	<node pkg="map_server" type="map_server" name="map_server" args="/home/nick/my_map.yaml"/>
   

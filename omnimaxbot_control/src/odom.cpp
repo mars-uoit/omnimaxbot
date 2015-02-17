@@ -1,0 +1,111 @@
+#include <ros/ros.h>
+#include <nav_msgs/Odometry.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Quaternion.h>
+#include <tf/transform_datatypes.h>
+
+double x_new = 0;
+double y_new = 0;
+double th_new = 0;
+ros::Time time_new = ros::Time::now();
+
+//function to save the new pose
+void PoseCallBack(const geometry_msgs::PoseStamped::ConstPtr& msg)
+{
+  time_new = msg->header.stamp;
+  x_new = msg->pose.position.x;
+  y_new = msg->pose.position.y;
+  th_new = tf::getYaw(msg->pose.orientation);
+}
+
+int main(int argc, char** argv)
+{
+  //initialize ROS
+  ros::init(argc, argv, "odom");
+  ros::NodeHandle n;
+  ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 60);
+  ros::Subscriber pose = n.subscribe("pose_stamped", 60, PoseCallBack);
+  
+  //initialize step displacement variables
+  double x_last = 0.0;
+  double y_last = 0.0;
+  double th_last = 0.0;
+  
+  //initialize total displacement variables
+  double x = 0.0;
+  double y = 0.0;
+  double th = 0.0;
+  
+  ros::Time time_last = ros::Time::now();
+  
+  //checks the loop at a rate of 60Hz
+  ros::Rate r(60.0);
+  while(n.ok())
+  { 
+    //calculates the time between messages being sent
+    double dt = (time_new - time_last).toSec(); 
+
+    //skips the rest of the loop if for some reason no time has passed between encoder counts
+    if(dt == 0.0)
+    {
+        continue;
+    }
+
+    //compute the change in displacement
+    double delta_x = x_new - x_last;
+    double delta_y = y_new - y_last;
+    double delta_th = th_new - th_last;
+    
+    //compute the velocity
+    double vx = delta_x / dt;
+    double vy = delta_y / dt;
+    double vth = delta_th / dt;
+
+    //compute the overall displacement
+    x += delta_x;
+    y += delta_y;
+    th += delta_th;
+
+    //create quaternion created from yaw
+    geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th);
+
+    //the transform is being published by laser_scan_matcher
+
+    //publish the odometry
+    nav_msgs::Odometry odom;
+    odom.header.stamp = time_new;
+    odom.header.frame_id = "odom";
+
+    //set the position
+    odom.pose.pose.position.x = x;
+    odom.pose.pose.position.y = y;
+    odom.pose.pose.position.z = 0.0;
+    odom.pose.pose.orientation = odom_quat;
+
+    //set the covariance
+    odom.pose.covariance[0] = 0.2; //change to 1e3 if this is still bad
+    odom.pose.covariance[7] = 0.2; //change to 1e3 if this is still bad 
+    odom.pose.covariance[14] = 1e100;
+    odom.pose.covariance[21] = 1e100;
+    odom.pose.covariance[28] = 1e100;
+    odom.pose.covariance[35] = 0.2; //change to 1e3 if this is still bad
+
+    //set the velocity
+    odom.child_frame_id = "base_footprint";
+    odom.twist.twist.linear.x = vx;
+    odom.twist.twist.linear.y = vy;
+    odom.twist.twist.angular.z = vth;
+
+    //publish the message
+    odom_pub.publish(odom);
+    
+    //save previous values
+    time_last = time_new;
+    x_last = x_new;
+    y_last = y_new;
+    th_last = th_new;
+    
+    ros::spinOnce();
+    r.sleep();
+  }
+}

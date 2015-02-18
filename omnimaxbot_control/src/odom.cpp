@@ -7,7 +7,7 @@
 double x_new = 0;
 double y_new = 0;
 double th_new = 0;
-ros::Time time_new = ros::Time::now();
+ros::Time time_new;
 
 //function to save the new pose
 void PoseCallBack(const geometry_msgs::PoseStamped::ConstPtr& msg)
@@ -24,7 +24,7 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "odom");
   ros::NodeHandle n;
   ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 60);
-  ros::Subscriber pose = n.subscribe("pose_stamped", 60, PoseCallBack);
+  ros::Subscriber pose = n.subscribe("pose_stamped", 10, PoseCallBack);
   
   //initialize step displacement variables
   double x_last = 0.0;
@@ -37,19 +37,27 @@ int main(int argc, char** argv)
   double th = 0.0;
   
   ros::Time time_last = ros::Time::now();
+  //ros::Time time_new = time_last;
   
-  //checks the loop at a rate of 60Hz
-  ros::Rate r(60.0);
-  while(n.ok())
+  // Spinner
+  ros::AsyncSpinner spinner(1);
+  spinner.start();
+  
+  //counter to skip the first run
+  int count = 0;
+
+  while(ros::ok()) 
   { 
+    //ROS_WARN("Start of while loop");
     //calculates the time between messages being sent
-    double dt = (time_new - time_last).toSec(); 
+    float dt = (time_new - time_last).toSec();
 
     //skips the rest of the loop if for some reason no time has passed between encoder counts
-    if(dt == 0.0)
+    if(dt == 0 || count == 0)
     {
-        continue;
     }
+    else
+    {
 
     //compute the change in displacement
     double delta_x = x_new - x_last;
@@ -98,6 +106,7 @@ int main(int argc, char** argv)
 
     //publish the message
     odom_pub.publish(odom);
+    }
     
     //save previous values
     time_last = time_new;
@@ -105,7 +114,10 @@ int main(int argc, char** argv)
     y_last = y_new;
     th_last = th_new;
     
-    ros::spinOnce();
-    r.sleep();
+    count++;
   }
+  
+  spinner.stop();
+    
+  return 0;
 }

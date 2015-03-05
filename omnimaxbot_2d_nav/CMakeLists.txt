@@ -5,7 +5,7 @@ project(omnimaxbot_2d_nav)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  LMS1xx
+  lms1xx
   move_base
   ax2550
 #  omnibot_description

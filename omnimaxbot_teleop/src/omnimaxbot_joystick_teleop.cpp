@@ -78,7 +78,7 @@ int main(int argc, char** argv)
   
   // subscriber setup
   ros::Subscriber planned_cmd_vel = n.subscribe<geometry_msgs::Twist>("omni_cmd_vel", 10, planCallback);
-  ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback);
+  ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 1, joyCallback);
   
   ros::spin();
   

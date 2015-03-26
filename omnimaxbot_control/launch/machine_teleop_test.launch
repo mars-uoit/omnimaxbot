@@ -1,0 +1,12 @@
+<launch>
+
+  <machine name="omnimaxbot" address="omnimaxbot" env-loader="~/catkin_ws/src/omnimaxbot/omnimaxbot_control/ros_env.sh" user="marslab"/>
+
+  <!-- Launch joystick control -->
+  <include file="$(find omnimaxbot_teleop)/launch/teleop.launch"/>
+  
+  <!-- Launch omni_cmd_vel node -->
+  <node machine="omnimaxbot" pkg="ax2550" type="omni_cmd_vel" name="omni_cmd_vel"/>
+  
+</launch>
+    

@@ -1,5 +1,8 @@
 <launch>
-	<node pkg="ar_sys" type="single_board" name="ar_single_board" output="screen">
+
+  <machine name="omnimaxbot" address="omnimaxbot" env-loader="~/catkin_ws/src/omnimaxbot/omnimaxbot_control/ros_env.sh" user="marslab"/>
+  
+	<node machine="omnimaxbot" pkg="ar_sys" type="single_board" name="ar_single_board" output="screen">
 		<remap from="/camera_info" to="/stereo_camera/right/camera_info" />
 		<remap from="/image" to="/stereo_camera/right/image_rect_color" />
     <remap from="/transform" to="/tf" />
@@ -14,7 +17,6 @@
 
 	<node pkg="image_view" type="image_view" name="image_view" output="screen">
 		<remap from="image" to="/ar_single_board/result" />
-
 		<param name="autosize" type="bool" value="true" />
 	</node>
 

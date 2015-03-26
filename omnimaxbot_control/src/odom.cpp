@@ -48,9 +48,13 @@ int main(int argc, char** argv)
 
   while(ros::ok()) 
   { 
-    //ROS_WARN("Start of while loop");
     //calculates the time between messages being sent
     float dt = (time_new - time_last).toSec();
+    
+    //info
+    ROS_WARN("x_new: %lf, y_new: %lf, time_new: %lf", x_new, y_new, time_new.toSec());
+    ROS_WARN("x_last: %lf, y_last: %lf, time_last: %lf", x_last, y_last, time_last.toSec());
+    ROS_WARN("dt: %lf", dt);
 
     //skips the rest of the loop if for some reason no time has passed between encoder counts
     if(dt == 0 || count == 0)
@@ -114,7 +118,7 @@ int main(int argc, char** argv)
     y_last = y_new;
     th_last = th_new;
     
-    count++;
+    count = 1;
   }
   
   spinner.stop();

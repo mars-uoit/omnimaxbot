@@ -1,0 +1,15 @@
+<launch>
+
+  <machine name="omnimaxbot" address="omnimaxbot" env-loader="~/catkin_ws/src/omnimaxbot/omnimaxbot_control/ros_env.sh" user="marslab"/>
+
+  <node machine="omnimaxbot" pkg="camera1394stereo" type="camera1394stereo_node" name="camera1394stereo_node" output="screen" >
+    <param name="video_mode" value="format7_mode3" />
+    <param name="format7_color_coding" value="raw16" />
+    <param name="bayer_pattern" value="grbg" />
+    <param name="bayer_method" value="" />
+    <param name="stereo_method" value="Interlaced" />
+    <param name="camera_info_url_left" value="$(find omnimaxbot_2d_nav)/calibration/0_left.yaml" />
+    <param name="camera_info_url_right" value="$(find omnimaxbot_2d_nav)/calibration/0_right.yaml" />
+  </node>
+
+</launch>

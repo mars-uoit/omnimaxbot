@@ -6,7 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /LaserScan1
         - /Odometry1
       Splitter Ratio: 0.5
     Tree Height: 418
@@ -109,6 +108,8 @@ Visualization Manager:
           Value: true
         kinect:
           Value: true
+        map:
+          Value: true
         odom:
           Value: true
         rear_laser:
@@ -131,28 +132,29 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        odom:
-          base_footprint:
-            base_link:
-              front_laser:
-                {}
-              kinect:
-                camera_link:
+        map:
+          odom:
+            base_footprint:
+              base_link:
+                front_laser:
                   {}
-              rear_laser:
+                kinect:
+                  camera_link:
+                    {}
+                rear_laser:
+                  {}
+                stereo_camera:
+                  {}
+                um7:
+                  {}
+              wheel_1:
                 {}
-              stereo_camera:
+              wheel_2:
                 {}
-              um7:
+              wheel_3:
                 {}
-            wheel_1:
-              {}
-            wheel_2:
-              {}
-            wheel_3:
-              {}
-            wheel_4:
-              {}
+              wheel_4:
+                {}
       Update Interval: 0
       Value: true
     - Arrow Length: 0.3
@@ -178,7 +180,7 @@ Visualization Manager:
       Length: 1
       Name: Odometry
       Position Tolerance: 0.1
-      Topic: /odometry/filtered
+      Topic: /odom
       Value: true
   Enabled: true
   Global Options:
@@ -212,7 +214,7 @@ Visualization Manager:
         Value: false
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 53.9475
+      Scale: 41.7769
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
       X: 0

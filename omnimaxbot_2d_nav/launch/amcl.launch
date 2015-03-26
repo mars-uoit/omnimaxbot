@@ -1,9 +1,11 @@
 <launch>
 
+  <machine name="omnimaxbot" address="omnimaxbot" env-loader="~/catkin_ws/src/omnimaxbot/omnimaxbot_control/ros_env.sh" user="marslab"/>
+
   <arg name="use_map_topic" default="true"/>
   <arg name="scan_topic" default="scan" />
 
-  <node pkg="amcl" type="amcl" name="amcl">
+  <node machine="omnimaxbot" pkg="amcl" type="amcl" name="amcl">
     <param name="use_map_topic" value="$(arg use_map_topic)"/>
     <!-- Publish scans from best pose at a max of 10 Hz -->
     <param name="odom_model_type" value="omni"/>

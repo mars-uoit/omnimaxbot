@@ -1,8 +1,10 @@
 <launch>
 
+  <machine name="omnimaxbot" address="omnimaxbot" env-loader="~/catkin_ws/src/omnimaxbot/omnimaxbot_control/ros_env.sh" user="marslab"/>
+
   <arg name="scan_topic" default="scan" />
 
-  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+  <node machine="omnimaxbot" pkg="gmapping" type="slam_gmapping" name="slam_gmapping">
     <param name="odom_frame" value="odom"/>
     <param name="map_update_interval" value="5.0"/>
     <param name="maxUrange" value="16.0"/>

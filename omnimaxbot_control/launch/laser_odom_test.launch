@@ -6,7 +6,9 @@
   <node machine="omnimaxbot" pkg="omnimaxbot_description" type="tf_broadcaster" name="tf_broadcaster" respawn="true"/>
 
   <!-- Launch the robot's kinematics and motor drivers -->
-  <include file="$(find ax2550)/launch/ax2550.launch"/>
+  <include file="$(find ax2550)/launch/ax2550.launch">
+    <arg name="use_odom" value="false"/>
+  </include>
   
   <!-- Launch joystick control -->
   <include file="$(find omnimaxbot_teleop)/launch/teleop.launch"/>
@@ -23,14 +25,6 @@
     <remap from="/front_laser/scan" to="scan"/>
   </node>
   
-  <!-- Launch robot pose ekf -->
-  <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf" respawn="true">
-	  <remap from="odom" to="omni_odom"/>
-	  <remap from="imu_data" to="/imu/data"/>
-	  <rosparam file="$(find omnimaxbot_2d_nav)/config/ekf_params.yaml" command="load"/>
-	  <remap from="/robot_pose_ekf/odom_combined" to="odom"/>
-	</node>
-  
   <!-- Launch laser scan matcher to simulate odom -->
   <node machine="omnimaxbot" pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node">
     <rosparam file="$(find omnimaxbot_2d_nav)/config/laser_scan_matcher_config.yaml" command="load"/>
@@ -41,16 +35,10 @@
 	
   <node pkg="map_server" type="map_server" name="map_server" args="~/catkin_ws/src/omnimaxbot/omnimaxbot_2d_nav/maps/my_map.yaml"/>
   
-  <!-- Launch AMCL for ax2550 odom -->
-  <include file="$(find omnimaxbot_2d_nav)/launch/ax225_amcl.launch"/>
-  
-  <!-- Launch AMCL for laser odom -->
-  <include file="$(find omnimaxbot_2d_nav)/launch/laser_amcl.launch"/>
-
-  <!-- Launch rviz for ax2550 odom -->
-  <node pkg="rviz" type="rviz" name="rviz_ax" args="-d $(find omnimaxbot_2d_nav)/rviz/test.rviz" respawn="false"/>
+  <!-- Launch AMCL -->
+  <!-- <include file="$(find omnimaxbot_2d_nav)/launch/amcl.launch"/> -->
 
   <!-- Launch rviz for laser odom -->
-  <node pkg="rviz" type="rviz" name="rviz_laser" args="-d $(find omnimaxbot_2d_nav)/rviz/test.rviz" respawn="false"/>
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find omnimaxbot_2d_nav)/rviz/test.rviz" respawn="false"/>
 	
 </launch>

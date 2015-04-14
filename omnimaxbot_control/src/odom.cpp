@@ -3,6 +3,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Quaternion.h>
 #include <tf/transform_datatypes.h>
+#include <geometry_msgs/TwistStamped.h>
 
 double x_new = 0;
 double y_new = 0;
@@ -23,7 +24,8 @@ int main(int argc, char** argv)
   //initialize ROS
   ros::init(argc, argv, "odom");
   ros::NodeHandle n;
-  ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 60);
+  ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("laser_odom", 60);
+  ros::Publisher vel_pub = n.advertis<geometry_msgs::TwistStamped>("vel", 60);
   ros::Subscriber pose = n.subscribe("pose_stamped", 10, PoseCallBack);
   
   //initialize step displacement variables
@@ -62,54 +64,65 @@ int main(int argc, char** argv)
     }
     else
     {
-
-    //compute the change in displacement
-    double delta_x = x_new - x_last;
-    double delta_y = y_new - y_last;
-    double delta_th = th_new - th_last;
+      //compute the change in displacement
+      double delta_x = x_new - x_last;
+      double delta_y = y_new - y_last;
+      double delta_th = th_new - th_last;
     
-    //compute the velocity
-    double vx = delta_x / dt;
-    double vy = delta_y / dt;
-    double vth = delta_th / dt;
+      //compute the velocity
+      double vx = delta_x / dt;
+      double vy = delta_y / dt;
+      double vth = delta_th / dt;
 
-    //compute the overall displacement
-    x += delta_x;
-    y += delta_y;
-    th += delta_th;
+      //compute the overall displacement
+      x += delta_x;
+      y += delta_y;
+      th += delta_th;
 
-    //create quaternion created from yaw
-    geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th);
+      //create quaternion created from yaw
+      geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th);
 
-    //the transform is being published by laser_scan_matcher
+      //the transform is being published by laser_scan_matcher
 
-    //publish the odometry
-    nav_msgs::Odometry odom;
-    odom.header.stamp = time_new;
-    odom.header.frame_id = "odom";
+      //publish the odometry
+      nav_msgs::Odometry odom;
+      odom.header.stamp = time_new;
+      odom.header.frame_id = "odom";
 
-    //set the position
-    odom.pose.pose.position.x = x;
-    odom.pose.pose.position.y = y;
-    odom.pose.pose.position.z = 0.0;
-    odom.pose.pose.orientation = odom_quat;
+      //set the position
+      odom.pose.pose.position.x = x;
+      odom.pose.pose.position.y = y;
+      odom.pose.pose.position.z = 0.0;
+      odom.pose.pose.orientation = odom_quat;
 
-    //set the covariance
-    odom.pose.covariance[0] = 0.2; //change to 1e3 if this is still bad
-    odom.pose.covariance[7] = 0.2; //change to 1e3 if this is still bad 
-    odom.pose.covariance[14] = 1e100;
-    odom.pose.covariance[21] = 1e100;
-    odom.pose.covariance[28] = 1e100;
-    odom.pose.covariance[35] = 0.2; //change to 1e3 if this is still bad
+      //set the covariance
+      odom.pose.covariance[0] = 0.2; //change to 1e3 if this is still bad
+      odom.pose.covariance[7] = 0.2; //change to 1e3 if this is still bad 
+      odom.pose.covariance[14] = 1e100;
+      odom.pose.covariance[21] = 1e100;
+      odom.pose.covariance[28] = 1e100;
+      odom.pose.covariance[35] = 0.2; //change to 1e3 if this is still bad
 
-    //set the velocity
-    odom.child_frame_id = "base_footprint";
-    odom.twist.twist.linear.x = vx;
-    odom.twist.twist.linear.y = vy;
-    odom.twist.twist.angular.z = vth;
+      //set the velocity
+      odom.child_frame_id = "base_footprint";
+      odom.twist.twist.linear.x = vx; 
+      odom.twist.twist.linear.y = vy;
+      odom.twist.twist.angular.z = vth;
 
-    //publish the message
-    odom_pub.publish(odom);
+      //publish the message
+      odom_pub.publish(odom);
+      
+      //publish the velocities as geometry_msgs::TwistStamped
+      geometry_msgs::TwistStamped vel;
+      vel.header.time = time_new;
+      vel.header.frame_id = "odom";
+      vel.linear.x = vx;
+      vel.linear.y = vy;
+      vel.linear.z = 0;
+      vel.angular.x = 0;
+      vel.angular.y = 0;
+      vel.angular.z = vth;
+      vel_pub.publish(vel);
     }
     
     //save previous values

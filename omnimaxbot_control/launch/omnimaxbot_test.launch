@@ -54,7 +54,7 @@
   <!-- Simulate odometry msg from scan matcher -->
   <node machine="omnimaxbot" pkg="omnimaxbot_control" type="laser_scan_odom_node" name="laser_scan_odom_node"/>
 	
-  <node pkg="map_server" type="map_server" name="map_server" args="~/catkin_ws/src/omnimaxbot/omnimaxbot_2d_nav/maps/my_map.yaml"/>
+  <node pkg="map_server" type="map_server" name="map_server" args="$(find omnimaxbot_2d_nav)/maps/my_map.yaml"/>
 
   <!-- Launch gmapping -->	 
   <!-- <include file="$(find omnimaxbot_2d_nav)/launch/gmapping.launch"/> -->

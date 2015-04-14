@@ -24,8 +24,8 @@ int main(int argc, char** argv)
   //initialize ROS
   ros::init(argc, argv, "odom");
   ros::NodeHandle n;
-  ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("laser_odom", 60);
-  ros::Publisher vel_pub = n.advertis<geometry_msgs::TwistStamped>("vel", 60);
+  ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("lasergeometry_odom", 60);
+  ros::Publisher vel_pub = n.advertise<geometry_msgs::TwistStamped>("vel", 60);
   ros::Subscriber pose = n.subscribe("pose_stamped", 10, PoseCallBack);
   
   //initialize step displacement variables
@@ -114,14 +114,14 @@ int main(int argc, char** argv)
       
       //publish the velocities as geometry_msgs::TwistStamped
       geometry_msgs::TwistStamped vel;
-      vel.header.time = time_new;
+      vel.header.stamp = time_new;
       vel.header.frame_id = "odom";
-      vel.linear.x = vx;
-      vel.linear.y = vy;
-      vel.linear.z = 0;
-      vel.angular.x = 0;
-      vel.angular.y = 0;
-      vel.angular.z = vth;
+      vel.twist.linear.x = vx;
+      vel.twist.linear.y = vy;
+      vel.twist.linear.z = 0;
+      vel.twist.angular.x = 0;
+      vel.twist.angular.y = 0;
+      vel.twist.angular.z = vth;
       vel_pub.publish(vel);
     }
     

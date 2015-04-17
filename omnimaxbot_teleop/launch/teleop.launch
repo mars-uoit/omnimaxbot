@@ -1,6 +1,7 @@
 <launch>
-  <arg name="drive_speed" default="2.0"/>
-  <arg name="turn_speed" default="1.0"/>
+  <arg name="x_drive_scale" default="2.0"/>
+  <arg name="y_drive_scale" default="2.0"/>
+  <arg name="turn_scale" default="1.0"/>
   <arg name="joy_dev" default="/dev/input/js1"/>
   <arg name="cmd_topic" default="cmd_vel"/>
 
@@ -11,8 +12,9 @@
   </node>
 
   <node pkg="omnimaxbot_teleop" type="omnimaxbot_joystick_teleop" name="omnibot_joystick_teleop">
-    <param name="turn_scale" value="$(arg turn_speed)"/>
-    <param name="drive_scale" value="$(arg drive_speed)"/>
+    <param name="turn_scale" value="$(arg turn_scale)"/>
+    <param name="x_drive_scale" value="$(arg x_drive_scale)"/>
+    <param name="y_drive_scale" value="$(arg y_drive_scale)"/>
     <remap from="cmd_vel" to="$(arg cmd_topic)"/>
   </node>
 </launch>

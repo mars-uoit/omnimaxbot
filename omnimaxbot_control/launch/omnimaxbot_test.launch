@@ -1,4 +1,24 @@
-<launch>
+
+  
+
+  
+  
+
+	
+
+
+
+
+	
+  <!-- Launch Bumblebee2 -->
+  <!-- include file="$(find omnimaxbot_control)/launch/stereo_camera.launch"/ -->
+	
+  <!-- Launch camera processing -->
+  <!-- node machine="omnimaxbot" ns="stereo_camera" pkg="stereo_image_proc" type="stereo_image_proc" name="stereo_image_proc" respawn="true"/ -->
+	
+  <!-- Launch ar_sys -->
+  <!-- include file="$(find omnimaxbot_control)/launch/ar_sys.launch"/ -->
+	<launch>
 
   <machine name="omnimaxbot" address="omnimaxbot" env-loader="~/catkin_ws/src/omnimaxbot/omnimaxbot_control/ros_env.sh" user="marslab"/>
 
@@ -6,7 +26,9 @@
   <node machine="omnimaxbot" pkg="omnimaxbot_description" type="tf_broadcaster" name="tf_broadcaster" respawn="true"/>
 
   <!-- Launch the robot's kinematics and motor drivers -->
-  <include file="$(find ax2550)/launch/ax2550.launch"/>
+  <include file="$(find ax2550)/launch/ax2550.launch">
+    <arg name="use_odom" value="false"/>
+  </include>
   
   <!-- Launch joystick control -->
   <include file="$(find omnimaxbot_teleop)/launch/teleop.launch"/>
@@ -15,17 +37,7 @@
   <node machine="omnimaxbot" pkg="um7" type="um7_driver" name="um7_driver" respawn="true">
     <param name="port" type="string" value="/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A7045P4L-if00-port0"/>
   </node>
-  
-  <!-- Launch the front fork driver -->
-  <!-- <node machine="omnimaxbot" pkg="phidgets" type="motor_control_hc_1065" name="front_fork_driver" respawn="true"> -->
-  <!--   <param name="_serial" type="int" value="299103"/> -->
-  <!-- </node> -->
-  
-  <!-- Launch the rear fork driver -->
-  <!-- <node machine="omnimaxbot" pkg="phidgets" type="motor_control_hc_1065" name="rear_fork_driver" respawn="true"> -->
-  <!--   <param name="_serial" type="int" value="299104"/> -->
-  <!-- </node> -->
-  
+
   <!--Launch the front laser sensor -->
   <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node" name="front_laser" respawn="true"> 
     <param name="host" value="192.168.1.2"/>
@@ -34,11 +46,19 @@
   </node>
   
   <!--Launch the rear laser sensor -->
-  <!-- <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node" name="rear_laser" respawn="true"> -->
-  <!--   <remap from="/rear_laser/scan" to="scan"/> -->
-  <!--   <param name="host" value="192.168.1.3"/> -->
-  <!--   <param name="frame_id" value="rear_laser"/> -->
-  <!-- </node> -->
+  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node" name="rear_laser" respawn="true"> 
+    <param name="host" value="192.168.1.3"/>
+    <param name="frame_id" value="rear_laser"/>
+    <remap from="/rear_laser/scan" to="scan"/>
+  </node>
+  
+  <!-- Launch laser scan matcher to simulate odom -->
+  <node machine="omnimaxbot" pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node">
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/laser_scan_matcher_config.yaml" command="load"/>
+  </node>
+  
+  <!-- Simulate odometry msg from scan matcher -->
+  <node machine="omnimaxbot" pkg="omnimaxbot_control" type="laser_scan_odom_node" name="laser_scan_odom_node"/>
   
   <!-- Launch kinect NEED TO WORK OUT HOW TO GET THIS TO RUN ON OMNIMAXBOT-->
   <!-- <include file="$(find openni_launch)/launch/openni.launch"/> -->
@@ -46,22 +66,11 @@
   <!-- Convert the depth image to a laser scan -->
   <!-- <node machine="omnimaxbot" pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan" /> -->
 	
-  <!-- Launch laser scan matcher to simulate odom -->
-  <node machine="omnimaxbot" pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node" output="screen">
-  <rosparam file="$(find omnimaxbot_2d_nav)/config/laser_scan_matcher_config.yaml" command="load"/>
-  </node>
-  
-  <!-- Simulate odometry msg from scan matcher -->
-  <node machine="omnimaxbot" pkg="omnimaxbot_control" type="laser_scan_odom_node" name="laser_scan_odom_node"/>
-	
-  <node pkg="map_server" type="map_server" name="map_server" args="$(find omnimaxbot_2d_nav)/maps/my_map.yaml"/>
-
-  <!-- Launch gmapping -->	 
-  <!-- <include file="$(find omnimaxbot_2d_nav)/launch/gmapping.launch"/> -->
+  <node pkg="map_server" type="map_server" name="map_server" args="/home/nick/my_map.yaml"/>
   
   <!-- Launch AMCL -->
   <include file="$(find omnimaxbot_2d_nav)/launch/amcl.launch"/>
-
+  
   <!-- Launch move base -->
   <node machine="omnimaxbot" pkg="move_base" type="move_base" respawn="true" name="move_base" output="screen">
     <remap from="odom" to="omni_odom"/>
@@ -75,14 +84,15 @@
 
   <!-- Launch rviz -->
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find omnimaxbot_2d_nav)/rviz/test.rviz" respawn="false"/>
-	
-  <!-- Launch Bumblebee2 -->
-  <!-- include file="$(find omnimaxbot_control)/launch/stereo_camera.launch"/ -->
-	
-  <!-- Launch camera processing -->
-  <!-- node machine="omnimaxbot" ns="stereo_camera" pkg="stereo_image_proc" type="stereo_image_proc" name="stereo_image_proc" respawn="true"/ -->
-	
-  <!-- Launch ar_sys -->
-  <!-- include file="$(find omnimaxbot_control)/launch/ar_sys.launch"/ -->
+  
+  <!-- Launch the front fork driver -->
+  <!-- <node machine="omnimaxbot" pkg="phidgets" type="motor_control_hc_1065" name="front_fork_driver" respawn="true"> -->
+  <!--   <param name="_serial" type="int" value="299103"/> -->
+  <!-- </node> -->
+  
+  <!-- Launch the rear fork driver -->
+  <!-- <node machine="omnimaxbot" pkg="phidgets" type="motor_control_hc_1065" name="rear_fork_driver" respawn="true"> -->
+  <!--   <param name="_serial" type="int" value="299104"/> -->
+  <!-- </node> -->
 	
 </launch>

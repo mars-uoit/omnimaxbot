@@ -3,7 +3,8 @@
 #include <sensor_msgs/Joy.h>
 
 ros::Publisher vel_pub;
-double drive_scale = 1.0;
+double x_drive_scale = 2.0;
+double y_drive_scale = 2.0;
 double turn_scale = 1.0;
 
 double plan_x = 0;
@@ -34,8 +35,8 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
   
   if(deadman_button == 1)
   {
-    vel.linear.x = joy->axes[linear_x] * drive_scale;
-    vel.linear.y = joy->axes[linear_y] * drive_scale;
+    vel.linear.x = joy->axes[linear_x] * x_drive_scale;
+    vel.linear.y = joy->axes[linear_y] * y_drive_scale;
     vel.linear.z = 0.0;
     vel.angular.x = 0.0;
     vel.angular.y = 0.0;
@@ -71,7 +72,8 @@ int main(int argc, char** argv)
   
   // get parameters
   n.param("turn_scale", turn_scale, 1.0);
-  n.param("drive_scale", drive_scale, 2.0);
+  n.param("x_drive_scale", x_drive_scale, 2.0);
+  n.param("y_drive_scale", y_drive_scale, 2.0);
   
   // publisher setup
   vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);

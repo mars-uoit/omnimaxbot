@@ -24,7 +24,7 @@ int main(int argc, char** argv)
   //initialize ROS
   ros::init(argc, argv, "odom");
   ros::NodeHandle n;
-  ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("lasergeometry_odom", 60);
+  ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("omni_odom", 60);
   ros::Publisher vel_pub = n.advertise<geometry_msgs::TwistStamped>("vel", 60);
   ros::Subscriber pose = n.subscribe("pose_stamped", 10, PoseCallBack);
   

@@ -2,7 +2,7 @@ obstacle_range: 2.5
 raytrace_range: 3.0
 footprint: [[0.6096, -0.5969], [-0.6096, -0.5969], [-0.6096, 0.5969], [0.6096, 0.5969]]
 inflation_radius: 0.25
-observation_sources: front_scan # kinect rear_scan
+observation_sources: front_scan rear_scan #kinect
 front_scan: {sensor_frame: front_laser, data_type: LaserScan, topic: scan, marking: true, clearing: true}
-# rear_scan: {sensor_frame: rear_laser, data_type: LaserScan, topic: scan, marking: true, clearing: true}
+rear_scan: {sensor_frame: rear_laser, data_type: LaserScan, topic: scan, marking: true, clearing: true}
 # kinect: {sensor_frame: kinect, data_type: PointCloud2, topic: /camera/depth_registered/points, marking: true, clearing: true}

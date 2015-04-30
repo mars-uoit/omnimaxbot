@@ -26,24 +26,14 @@ int main(int argc, char** argv)
   ros::NodeHandle n;
   ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("omni_odom", 60);
   ros::Publisher vel_pub = n.advertise<geometry_msgs::TwistStamped>("vel", 60);
-  ros::Subscriber pose = n.subscribe("pose_stamped", 10, PoseCallBack);
+  ros::Subscriber pose = n.subscribe("pose_stamped", 60, PoseCallBack);
   
   //initialize step displacement variables
   double x_last = 0.0;
   double y_last = 0.0;
   double th_last = 0.0;
   
-  //initialize total displacement variables
-  double x = 0.0;
-  double y = 0.0;
-  double th = 0.0;
-  
   ros::Time time_last = ros::Time::now();
-  //ros::Time time_new = time_last;
-  
-  // Spinner
-  ros::AsyncSpinner spinner(1);
-  spinner.start();
   
   //counter to skip the first run
   int count = 0;
@@ -52,11 +42,6 @@ int main(int argc, char** argv)
   { 
     //calculates the time between messages being sent
     float dt = (time_new - time_last).toSec();
-    
-    //info
-    ROS_WARN("x_new: %lf, y_new: %lf, time_new: %lf", x_new, y_new, time_new.toSec());
-    ROS_WARN("x_last: %lf, y_last: %lf, time_last: %lf", x_last, y_last, time_last.toSec());
-    ROS_WARN("dt: %lf", dt);
 
     //skips the rest of the loop if for some reason no time has passed between encoder counts
     if(dt == 0 || count == 0)
@@ -74,13 +59,8 @@ int main(int argc, char** argv)
       double vy = delta_y / dt;
       double vth = delta_th / dt;
 
-      //compute the overall displacement
-      x += delta_x;
-      y += delta_y;
-      th += delta_th;
-
       //create quaternion created from yaw
-      geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th);
+      geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th_last);
 
       //the transform is being published by laser_scan_matcher
 
@@ -90,8 +70,8 @@ int main(int argc, char** argv)
       odom.header.frame_id = "odom";
 
       //set the position
-      odom.pose.pose.position.x = x;
-      odom.pose.pose.position.y = y;
+      odom.pose.pose.position.x = x_last;
+      odom.pose.pose.position.y = y_last;
       odom.pose.pose.position.z = 0.0;
       odom.pose.pose.orientation = odom_quat;
 
@@ -132,9 +112,9 @@ int main(int argc, char** argv)
     th_last = th_new;
     
     count = 1;
+    
+    ros::spinOnce();
   }
-  
-  spinner.stop();
     
   return 0;
 }

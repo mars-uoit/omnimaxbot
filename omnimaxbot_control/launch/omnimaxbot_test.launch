@@ -1,4 +1,3 @@
-
 <launch>
 
   <machine name="omnimaxbot" address="omnimaxbot" env-loader="~/catkin_ws/src/omnimaxbot/omnimaxbot_control/ros_env.sh" user="marslab"/>
@@ -20,6 +19,13 @@
   </node>
 
   <!--Launch the front laser sensor -->
+  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node" name="front_laser_odom" respawn="true"> 
+    <param name="host" value="192.168.1.2"/>
+    <param name="frame_id" value="front_laser"/>
+    <remap from="scan" to="front_laser/scan"/>
+  </node>
+  
+  <!--Launch the front laser sensor -->
   <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node" name="front_laser" respawn="true"> 
     <param name="host" value="192.168.1.2"/>
     <param name="frame_id" value="front_laser"/>
@@ -34,6 +40,7 @@
   <!-- Launch laser scan matcher to simulate the odom frame -->
   <node machine="omnimaxbot" pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node">
     <rosparam file="$(find omnimaxbot_2d_nav)/config/laser_scan_matcher_config.yaml" command="load"/>
+    <remap from="scan" to="front_laser/scan"/>
   </node>
   
   <!-- Simulate odometry msg from scan matcher -->

@@ -1,0 +1,8 @@
+<launch>
+
+  <machine name="omnimaxbot" address="omnimaxbot" env-loader="~/catkin_ws/src/omnimaxbot/omnimaxbot_control/ros_env.sh" user="marslab"/>
+
+  <!-- Launch the rear laser limiter -->
+  <node machine="omnimaxbot" pkg="laser_limiters type="rear_laser_limiter_node" name="rear_laser_limiter" respawn="true"\>
+	
+</launch>

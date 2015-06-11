@@ -9,7 +9,7 @@
   </node>
 
   <!-- Launch the front laser limiter -->
-  <node pkg="laser_limiters" type="front_laser_limiter_node" name="front_laser_limiter" respawn="true">
-  </node>
+  <!-- <node pkg="laser_limiters" type="front_laser_limiter_node" name="front_laser_limiter" respawn="true"> -->
+  <!-- </node> -->
 	
 </launch>

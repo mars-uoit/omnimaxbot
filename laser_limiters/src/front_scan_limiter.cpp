@@ -51,7 +51,16 @@ int main(int argc, char** argv)
   // subscriber setup
   ros::Subscriber scans = n.subscribe<sensor_msgs::LaserScan>("/front_laser/scan", 10, scanCallback);
   
-  ros::spin();
+  // Spinner
+  ros::AsyncSpinner spinner(2);
+  spinner.start();
+
+  while(ros::ok()) 
+  {
+    ros::spinOnce();
+  }
+
+  spinner.stop();
   
   return 0;
 }

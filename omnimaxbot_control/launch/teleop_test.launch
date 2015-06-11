@@ -1,0 +1,11 @@
+<launch>
+
+  <machine name="omnimaxbot" address="omnimaxbot" env-loader="~/catkin_ws/src/omnimaxbot/omnimaxbot_control/ros_env.sh" user="marslab"/>
+
+  <!-- Launch the robot's kinematics and motor drivers -->
+  <include file="$(find ax2550)/launch/ax2550.launch"/>
+  
+  <!-- Launch joystick control -->
+  <include file="$(find omnimaxbot_teleop)/launch/teleop.launch"/>
+	
+</launch>

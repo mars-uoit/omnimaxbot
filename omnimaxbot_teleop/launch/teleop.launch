@@ -2,7 +2,7 @@
   <arg name="x_drive_scale" default="0.5"/>
   <arg name="y_drive_scale" default="0.5"/>
   <arg name="turn_scale" default="1.0"/>
-  <arg name="joy_dev" default="/dev/input/js1"/>
+  <arg name="joy_dev" default="/dev/input/js0"/>
   <arg name="cmd_topic" default="cmd_vel"/>
 
   <node pkg="joy" type="joy_node" name="joy_node">

@@ -7,6 +7,7 @@ ros::Publisher scan_pub;
 
 void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
 {
+  ROS_WARN("Made it to start of callback");
   sensor_msgs::LaserScan newScan;
 
   newScan.header.seq = scan->header.seq;
@@ -29,14 +30,23 @@ void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
 
   int new_no_inc = (angle_max - angle_min) / angle_increment;
 
+  newScan.ranges.resize(new_no_inc);
+  newScan.intensities.resize(new_no_inc);
+
   //indexes 0-539, want to drop the last 90 (for now, may fine tune later), so index 0-449
   for (int i = 0; i < new_no_inc; i++)
   {
+    ROS_INFO_STREAM("i = " << i);
     newScan.ranges[i] = scan->ranges[i];
+    ROS_INFO_STREAM("Range at i = " << scan->ranges[i]);
     newScan.intensities[i] = scan->intensities[i];
+    ROS_INFO_STREAM("intensity at i = " << scan->intensities[i]);
+    ROS_WARN("Made it to end of for loop");
   }
+  ROS_WARN("Made it out of for loop");
 
   scan_pub.publish(scan);
+  ROS_WARN("Made it to end of callback");
 }
 
 int main(int argc, char** argv)
@@ -50,17 +60,8 @@ int main(int argc, char** argv)
   
   // subscriber setup
   ros::Subscriber scans = n.subscribe<sensor_msgs::LaserScan>("/front_laser/scan", 10, scanCallback);
-  
-  // Spinner
-  ros::AsyncSpinner spinner(2);
-  spinner.start();
 
-  while(ros::ok()) 
-  {
-    ros::spinOnce();
-  }
+  ros::spin();
 
-  spinner.stop();
-  
   return 0;
 }

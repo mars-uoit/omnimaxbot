@@ -47,13 +47,14 @@
   
   <!-- Launch move base -->
   <node machine="omnimaxbot" pkg="move_base" type="move_base" respawn="true" name="move_base" output="screen">
-    <remap from="odom" to="omni_odom"/>
-    <rosparam file="$(find omnimaxbot_2d_nav)/config/costmap_common_params.yaml" command="load" ns="global_costmap"/>
-    <rosparam file="$(find omnimaxbot_2d_nav)/config/costmap_common_params.yaml" command="load" ns="local_costmap"/>
-    <rosparam file="$(find omnimaxbot_2d_nav)/config/local_costmap_params.yaml" command="load"/>
-    <rosparam file="$(find omnimaxbot_2d_nav)/config/global_costmap_params.yaml" command="load"/>
-    <rosparam file="$(find omnimaxbot_2d_nav)/config/base_local_planner_params.yaml" command="load"/>
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/costmap_common_params.yaml" command="load" ns="global_costmap"/>
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/costmap_common_params.yaml" command="load" ns="local_costmap"/>
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/local_costmap_params.yaml" command="load"/>
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/global_costmap_params.yaml" command="load"/>
+    <!-- <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/base_local_planner_params.yaml" command="load"/> -->
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/dwa_local_planner_params.yaml" command="load"/>
     <remap from="/cmd_vel" to="/omni_cmd_vel" />
+    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
   </node>
 
   <!-- Launch rviz for laser odom -->

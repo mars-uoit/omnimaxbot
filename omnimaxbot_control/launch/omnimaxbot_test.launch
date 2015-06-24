@@ -18,39 +18,47 @@
     <param name="port" type="string" value="/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A7045P4L-if00-port0"/>
   </node>
 
-  <!--Launch the front laser sensor -->
-  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node" name="front_laser_odom" respawn="true"> 
+  <!--Launch the front laser sensor for odometry-->
+  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node" name="front_laser_odom" respawn="true">
+    <remap from="/scan" to="/front_laser/scan"/>
     <param name="host" value="192.168.1.2"/>
     <param name="frame_id" value="front_laser"/>
-    <remap from="scan" to="front_laser/scan"/>
+    <param name="start_angle" value="-90.0"/> 
+    <param name="stop_angle" value="999.9"/>
   </node>
   
   <!--Launch the front laser sensor -->
-  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node" name="front_laser" respawn="true"> 
+  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node" name="front_laser" respawn="true">
     <param name="host" value="192.168.1.2"/>
     <param name="frame_id" value="front_laser"/>
+    <param name="start_angle" value="-90.0"/> 
+    <param name="stop_angle" value="999.9"/>
   </node>
   
   <!--Launch the rear laser sensor -->
-  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node" name="rear_laser" respawn="true">
-    <param name="host" value="192.168.1.3"/>
-    <param name="frame_id" value="rear_laser"/>
-  </node>
+  <!--<node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node" name="rear_laser" respawn="true"> -->
+  <!--  <param name="host" value="192.168.1.3"/> -->
+  <!--  <param name="frame_id" value="rear_laser"/> -->
+  <!--  <param name="start_angle" value="-999.9"/>  -->
+  <!--  <param name="stop_angle" value="90.0"/> -->
+  <!--</node> -->
   
   <!-- Launch laser scan matcher to simulate the odom frame -->
   <node machine="omnimaxbot" pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node">
     <rosparam file="$(find omnimaxbot_2d_nav)/config/laser_scan_matcher_config.yaml" command="load"/>
-    <remap from="scan" to="front_laser/scan"/>
+    <remap from="scan" to="/front_laser/scan"/>
   </node>
   
   <!-- Simulate odometry msg from scan matcher -->
   <node machine="omnimaxbot" pkg="omnimaxbot_control" type="laser_scan_odom_node" name="laser_scan_odom_node"/>
   
-  <!-- Launch kinect NEED TO WORK OUT HOW TO GET THIS TO RUN ON OMNIMAXBOT-->
-  <!-- <include file="$(find openni_launch)/launch/openni.launch"/> -->
+  <!-- Launch kinect directly from omnimaxbot -->
   
   <!-- Convert the depth image to a laser scan -->
-  <!-- <node machine="omnimaxbot" pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan" /> -->
+  <node machine="omnimaxbot" pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan">
+    <param name="scan_height" value="400"/>
+    <remap from="image" to="/camera/depth/image_rect"/>
+  </node> 
   
   <!-- Launch Bumblebee2 -->
   <!-- include file="$(find omnimaxbot_control)/launch/stereo_camera.launch"/ -->
@@ -60,21 +68,23 @@
 	
   <!-- Launch ar_sys -->
   <!-- include file="$(find omnimaxbot_control)/launch/ar_sys.launch"/ -->
-	
-  <node pkg="map_server" type="map_server" name="map_server" args="/home/nick/my_map.yaml"/>
+
+  <!-- Load the map -->
+  <node machine="omnimaxbot" pkg="map_server" type="map_server" name="map_server" args="~/my_map.yaml"/>
   
   <!-- Launch AMCL -->
   <include file="$(find omnimaxbot_2d_nav)/launch/amcl.launch"/>
   
   <!-- Launch move base -->
   <node machine="omnimaxbot" pkg="move_base" type="move_base" respawn="true" name="move_base" output="screen">
-    <remap from="odom" to="omni_odom"/>
-    <rosparam file="$(find omnimaxbot_2d_nav)/config/costmap_common_params.yaml" command="load" ns="global_costmap"/>
-    <rosparam file="$(find omnimaxbot_2d_nav)/config/costmap_common_params.yaml" command="load" ns="local_costmap"/>
-    <rosparam file="$(find omnimaxbot_2d_nav)/config/local_costmap_params.yaml" command="load"/>
-    <rosparam file="$(find omnimaxbot_2d_nav)/config/global_costmap_params.yaml" command="load"/>
-    <rosparam file="$(find omnimaxbot_2d_nav)/config/base_local_planner_params.yaml" command="load"/>
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/costmap_common_params.yaml" command="load" ns="global_costmap"/>
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/costmap_common_params.yaml" command="load" ns="local_costmap"/>
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/local_costmap_params.yaml" command="load"/>
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/global_costmap_params.yaml" command="load"/>
+    <!-- <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/base_local_planner_params.yaml" command="load"/> -->
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/dwa_local_planner_params.yaml" command="load"/>
     <remap from="/cmd_vel" to="/omni_cmd_vel" />
+    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
   </node>
 
   <!-- Launch rviz -->

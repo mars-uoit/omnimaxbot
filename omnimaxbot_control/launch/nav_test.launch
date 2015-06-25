@@ -17,20 +17,16 @@
   </node>
   
   <!--Launch the front laser sensor -->
-  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node" name="front_laser" respawn="true">
+  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node_front" name="front_laser" respawn="true">
     <param name="host" value="192.168.1.2"/>
     <param name="frame_id" value="front_laser"/>
-    <param name="start_angle" value="-90.0"/> 
-    <param name="stop_angle" value="999.9"/>
   </node>
 
   <!--Launch the front laser sensor for odom -->
-  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node" name="front_laser_odom" respawn="true">
+  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node_front" name="front_laser_odom" respawn="true">
     <remap from="scan" to="/front_laser/scan"/>
     <param name="host" value="192.168.1.2"/>
     <param name="frame_id" value="front_laser"/>
-    <param name="start_angle" value="-90.0"/> 
-    <param name="stop_angle" value="999.9"/>
   </node>
 	
   <!-- Launch laser scan matcher to simulate odom -->

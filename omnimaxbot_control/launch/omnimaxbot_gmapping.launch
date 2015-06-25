@@ -19,10 +19,9 @@
   </node>
 
   <!--Launch the front laser sensor -->
-  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node" name="front_laser" respawn="true"> 
+  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node_front" name="front_laser" respawn="true"> 
     <param name="host" value="192.168.1.2"/>
     <param name="frame_id" value="front_laser"/>
-    <remap from="/front_laser/scan" to="scan"/>
   </node>
   
   <!-- Launch laser scan matcher to simulate odom -->
@@ -33,7 +32,7 @@
   <!-- Simulate odometry msg from scan matcher -->
   <node machine="omnimaxbot" pkg="omnimaxbot_control" type="laser_scan_odom_node" name="laser_scan_odom_node"/>
 	
-	<!-- Launch gmapping -->
+  <!-- Launch gmapping -->
   <include file="$(find omnibot_2d_nav)/launch/gmapping.launch"/>
 
   <!-- Launch rviz for laser odom -->

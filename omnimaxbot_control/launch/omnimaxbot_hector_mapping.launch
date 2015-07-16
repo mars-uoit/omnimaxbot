@@ -12,7 +12,7 @@
   
   <!-- Launch joystick control -->
   <include file="$(find omnimaxbot_teleop)/launch/teleop.launch"/>
-  
+
   <!-- Connect to IMU through Arduino -->
   <node machine="omnimaxbot" pkg="rosserial_python" type="serial_node.py" name="ros_arduino_imu" output="screen" respawn="true">
     <param name="~port" value="/dev/ttyACM0" />
@@ -30,7 +30,7 @@
     <param name="host" value="192.168.1.2"/>
     <param name="frame_id" value="front_laser"/>
   </node>
-  
+
   <!-- Launch laser scan matcher to simulate odom -->
   <node machine="omnimaxbot" pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node">
     <rosparam file="$(find omnimaxbot_2d_nav)/config/laser_scan_matcher_config.yaml" command="load"/>
@@ -39,8 +39,8 @@
   <!-- Simulate odometry msg from scan matcher -->
   <node machine="omnimaxbot" pkg="omnimaxbot_control" type="laser_scan_odom_node" name="laser_scan_odom_node"/>
 	
-  <!-- Launch gmapping -->
-  <include file="$(find omnimaxbot_2d_nav)/launch/gmapping.launch"/>
+  <!-- Launch hector_mapping -->
+  <include file="$(find omnimaxbot_2d_nav)/launch/hector_mapping.launch"/>
 
   <!-- Launch rviz -->
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find omnimaxbot_2d_nav)/rviz/gmapping.rviz" respawn="false" output="screen"/>

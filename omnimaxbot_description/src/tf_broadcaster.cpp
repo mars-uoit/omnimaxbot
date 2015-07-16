@@ -19,13 +19,11 @@ int main(int argc, char** argv)
       tf::StampedTransform(
         tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.0, 0.0, 0.0)),
         ros::Time::now(),"base_footprint", "base_link"));
-    r.sleep();
 
     broadcaster.sendTransform(
       tf::StampedTransform(
         tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.4826, 0.5461, 0.125)),
         ros::Time::now(),"base_footprint", "wheel_1"));
-    r.sleep();
 
     broadcaster.sendTransform(
       tf::StampedTransform(
@@ -68,8 +66,8 @@ int main(int argc, char** argv)
         
     broadcaster.sendTransform(
       tf::StampedTransform(
-        tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.0, 0.381, 0.4318)),
-        ros::Time::now(),"base_link", "um7"));
+        tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.013, 0.504, 0.465)),
+        ros::Time::now(),"base_link", "imu_link"));
 
     r.sleep();
   }

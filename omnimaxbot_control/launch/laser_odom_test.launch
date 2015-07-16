@@ -27,6 +27,7 @@
   <!-- Launch laser scan matcher to simulate odom -->
   <node machine="omnimaxbot" pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node">
     <rosparam file="$(find omnimaxbot_2d_nav)/config/laser_scan_matcher_config.yaml" command="load"/>
+    <remap from="scan" to="front_scan"/>
   </node>
   
   <!-- Simulate odometry msg from scan matcher -->
@@ -35,7 +36,7 @@
   <node pkg="map_server" type="map_server" name="map_server" args="~/catkin_ws/src/omnimaxbot/omnimaxbot_2d_nav/maps/my_map.yaml"/>
   
   <!-- Launch AMCL -->
-  <!-- <include file="$(find omnimaxbot_2d_nav)/launch/amcl.launch"/> -->
+  <include file="$(find omnimaxbot_2d_nav)/launch/amcl.launch"/>
 
   <!-- Launch rviz for laser odom -->
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find omnimaxbot_2d_nav)/rviz/test.rviz" respawn="false"/>

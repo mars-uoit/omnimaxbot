@@ -1,6 +1,6 @@
 controller_frequency: 50.0
 recovery_behaviour_enabled: true
-		
+
 TrajectoryPlannerROS:
   max_vel_x: 0.5
   min_vel_x: 0.25

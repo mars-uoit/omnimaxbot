@@ -7,4 +7,5 @@ use_cloud_input: false
 publish_tf: true
 publish_pose: false
 publish_pose_stamped: true
-
+kf_dist_linear: 0.10
+kf_dist_angular: 0.175

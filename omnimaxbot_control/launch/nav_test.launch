@@ -11,20 +11,20 @@
   <!-- Launch joystick control -->
   <include file="$(find omnimaxbot_teleop)/launch/teleop.launch"/>
   
-  <!-- Launch the UM7 driver -->
-  <node machine="omnimaxbot" pkg="um7" type="um7_driver" name="um7_driver" respawn="true">
-    <param name="port" type="string" value="/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A7045P4L-if00-port0"/>
-  </node>
+  <!-- Connect to IMU through Arduino -->
+  <node machine="omnimaxbot" pkg="rosserial_python" type="serial_node.py" name="ros_arduino_imu" output="screen" respawn="true">
+    <param name="~port" value="/dev/ttyACM0" />
+    <param name="~baud" value="115200" />
+  </node> 
+
+  <!-- Get raw IMU data -->
+  <node machine="omnimaxbot" pkg="ros_arduino_imu" type="raw_imu_bridge_node" name="raw_imu_bridge" output="screen" respawn="false" />
+
+  <!-- Filter IMU data -->
+  <node machine="omnimaxbot" pkg="imu_filter_madgwick" type="imu_filter_node" name="imu_filter_madgwick" output="screen" respawn="false" />
   
   <!--Launch the front laser sensor -->
   <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node_front" name="front_laser" respawn="true">
-    <param name="host" value="192.168.1.2"/>
-    <param name="frame_id" value="front_laser"/>
-  </node>
-
-  <!--Launch the front laser sensor for odom -->
-  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node_front" name="front_laser_odom" respawn="true">
-    <remap from="scan" to="/front_laser/scan"/>
     <param name="host" value="192.168.1.2"/>
     <param name="frame_id" value="front_laser"/>
   </node>
@@ -32,6 +32,7 @@
   <!-- Launch laser scan matcher to simulate odom -->
   <node machine="omnimaxbot" pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node" output="screen">
     <rosparam file="$(find omnimaxbot_2d_nav)/config/laser_scan_matcher_config.yaml" command="load"/>
+    <!-- remap from="scan" to="front_scan"/ -->
   </node>
   
   <!-- Simulate odometry msg from scan matcher -->

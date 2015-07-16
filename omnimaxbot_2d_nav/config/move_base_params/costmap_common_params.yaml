@@ -25,7 +25,7 @@ observation_sources: front_scan kinect #rear_scan
                raytrace_range: 3.0,
                inf_is_valid: false}
 
-  rear_scan:  {topic: scan, 
+  #rear_scan:  {topic: scan, 
                sensor_frame: rear_laser,
                observation_persistence: 0.0,
                expected_update_rate: 0.1,

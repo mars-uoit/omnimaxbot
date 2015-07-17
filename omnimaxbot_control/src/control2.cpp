@@ -1,3 +1,7 @@
+/***
+ *** Need to rewrite this so that movement in the x and y to line up with the can is controlled using a PID controller sending cmd_vel messages directly to the motors
+ ***/
+
 #include <ros/ros.h>
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
@@ -33,9 +37,9 @@ int move()
   ac.waitForResult();
 
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-	  ROS_INFO("OmniMaxbot moved to position");
+    ROS_INFO("OmniMaxbot moved to position");
   else
-	  ROS_INFO("The base failed to move");
+    ROS_INFO("The base failed to move");
 
   return 0;
 } 

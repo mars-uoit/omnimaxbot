@@ -57,6 +57,7 @@
   <node machine="omnimaxbot" pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan">
     <param name="scan_height" value="400"/>
     <remap from="image" to="/camera/depth/image_rect"/>
+    <remap from="scan" to="kinect_scan"/>
   </node> 
   
   <!-- Launch Bumblebee2 -->
@@ -82,6 +83,7 @@
     <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/global_costmap_params.yaml" command="load"/>
     <!-- <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/base_local_planner_params.yaml" command="load"/> -->
     <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/dwa_local_planner_params.yaml" command="load"/>
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/global_planner_params.yaml" command="load"/>
     <remap from="/cmd_vel" to="/omni_cmd_vel"/>
     <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
     <param name="base_global_planner" value="global_planner/GlobalPlanner"/>

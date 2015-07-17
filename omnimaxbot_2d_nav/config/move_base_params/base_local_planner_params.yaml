@@ -1,4 +1,4 @@
-controller_frequency: 50.0
+controller_frequency: 20.0
 recovery_behaviour_enabled: true
 
 TrajectoryPlannerROS:
@@ -15,7 +15,7 @@ TrajectoryPlannerROS:
   holonomic_robot: true
   y_vels: [-0.5, -0.25, 0.25, 0.5]
   yaw_goal_tolerance: 0.05
-  xy_goal_tolerance: 0.1
+  xy_goal_tolerance: 0.05
   goal_distance_bias: 0.8
   path_distance_bias: 0.6
   sim_time: 1.5

@@ -1,0 +1,98 @@
+<!--
+  Launcher for servo glimpse
+  This requires:
+      Phidgets advanced servo controller
+      Pan servo connected to servo 0
+      Tilt servo connected to servo 1
+  -->
+<launch>
+    <!-- Machine settings. See http://www.ros.org/wiki/roslaunch/XML/machine -->
+    <machine name="local_alt" address="localhost" default="true" />
+    <!-- phidgets advanced servo controller -->
+    <node pkg="phidgets" type="advanced_servo" name="advanced_servo" respawn="true">
+        <!-- phidget device serial number -->
+        <param name="serial" value="-1" />
+    </node>
+    <!-- glimpse -->
+    <node pkg="phidgets" type="servo_glimpse" name="servo_glimpse" respawn="false" output="screen">
+        <!--  -->
+        <param name="enable" value="true" />
+        <!-- Speed of movement -->
+        <param name="speed" value="200" />
+        <!-- Acceleration of movement -->
+        <param name="acceleration" value="240" />
+        <!-- Deadband -->
+        <param name="deadband" value="0.1" />
+        <!-- Pan servo index -->
+        <param name="servoindex0" value="0" />
+        <!-- Tilt servo index -->
+        <param name="servoindex1" value="1" />
+
+        <!-- Pan servo position 0 -->
+        <param name="servo0pos0" value="160" />
+        <!-- Pan servo angle 0 (degrees) -->
+        <param name="servo0angle0" value="-35" />
+        <!-- Pan servo position 1 -->
+        <param name="servo0pos1" value="94" />
+        <!-- Pan servo angle 1 (degrees) -->
+        <param name="servo0angle1" value="35" />
+
+        <!-- Tilt servo position 0 -->
+        <param name="servo1pos0" value="127" />
+        <!-- Tilt servo angle 0 (degrees) -->
+        <param name="servo1angle0" value="0" />
+        <!-- Tilt servo position 1 -->
+        <param name="servo1pos1" value="193" />
+        <!-- Tilt servo angle 1 (degrees) -->
+        <param name="servo1angle1" value="40" />
+
+        <!-- Tilt servo rear camera position 0 -->
+        <param name="servo2pos0" value="127" />
+        <!-- Tilt servo rear camera angle 0 (degrees) -->
+        <param name="servo2angle0" value="0" />
+        <!-- Tilt servo rear camera position 1 -->
+        <param name="servo2pos1" value="193" />
+        <!-- Tilt servo rear camera angle 1 (degrees) -->
+        <param name="servo2angle1" value="40" />
+
+        <!-- Minimum pan angle (degrees) -->
+        <param name="minpanangle" value="-45" />
+        <!-- Maximum pan angle (degrees) -->
+        <param name="maxpanangle" value="45" />
+
+        <!-- Minimum tilt angle (degrees) -->
+        <param name="mintiltangle" value="0" />
+        <!-- Maximum tilt angle (degrees) -->
+        <param name="maxtiltangle" value="40" />
+
+        <!-- Pan Steps -->
+        <param name="pansteps" value="6" />
+        <!-- Tilt Steps -->
+        <param name="tiltsteps" value="2" />
+
+        <!-- Stereo camera baseline -->
+        <param name="baseline" value="120" />
+
+        <!-- Forward translation of the camera relative to the pan servo centre in millimetres -->
+        <param name="forward" value="90" />
+
+        <!-- vertical translation of the camera relative to the pan servo centre in millimetres -->
+        <param name="vertical" value="0" />
+
+        <!-- Glimpse time in seconds -->
+        <param name="glimpsetime" value="4" />
+
+        <!-- Directory to save files to -->
+        <param name="outputdirectory" value="/home/motters/develop/phidgets/glimpse/" />
+        <!-- Command to run for each position -->
+        <param name="glimpsecommand" value="v4l2stereo --dev0 /dev/video-front-left --dev1 /dev/video-front-right --headless --flipleft --vcamera --equal --calibrationfile /home/motters/develop/phidgets/robots/calibration_front.grok2 --poserotation '%d %d 0' --posetranslation '%d %d %d' --pointcloud %sgl%d.dat" />
+        <!-- If there is a second rearward pointing camera this command will be run for each position -->
+        <param name="glimpsecommand2" value="v4l2stereo --dev0 /dev/video-rear-left --dev1 /dev/video-rear-right --headless --flipleft --vcamera --equal --calibrationfile /home/motters/develop/phidgets/robots/calibration_rear.grok2 --poserotation '%d %d 0' --posetranslation '%d %d %d' --pointcloud %sgl%d.dat" />
+        <!-- Command to run after all glimpses -->
+        <param name="finalcommand" value="pcloud -f %s --posetranslation '1500 0 0' --savex3d %sglimpse.x3d" />
+        <!-- If there is a second rearward pointing camera this command will be run after all glimpses -->
+        <param name="finalcommand2" value="" />
+
+    </node>
+</launch>
+

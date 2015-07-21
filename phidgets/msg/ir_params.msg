@@ -1,0 +1,12 @@
+Header header
+int32[] code
+int32[] data
+byte bitcount
+int32[] head
+int32[] zero
+int32[] one
+int32 trail
+int32 gap
+int32[] repeat
+int32 duty_cycle
+int32 carrier_frequency

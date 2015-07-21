@@ -1,0 +1,22 @@
+<!--
+  Launcher for stepper motor
+  -->
+
+<launch>
+
+    <!-- Machine settings. See http://www.ros.org/wiki/roslaunch/XML/machine -->
+    <machine name="local_atl" address="localhost"/>
+
+    <!-- phidgets stepper control -->
+    <node pkg="phidgets" type="stepper" name="stepper" respawn="true" output="screen">
+        <!-- phidget device serial number -->
+        <param name="serial" value="-1" />
+    </node>
+
+    <!-- phidgets stepper client -->
+    <node pkg="phidgets" type="stepper_client" name="stepper_client" respawn="true" output="screen">
+        <!-- phidget device serial number -->
+        <param name="serial" value="-1" />
+    </node>
+
+</launch>

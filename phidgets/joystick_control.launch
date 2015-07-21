@@ -1,0 +1,47 @@
+<!--
+  Launcher for joystick control of two motors.
+  This requires:
+      Phidgets motor control HC
+      Phidgets 8/8/8 interface kit
+      Analog joystick connected to sensors 1 and 2 on the interface kit
+      Start and stop buttons (normally off momentary switch) connected to digital inputs 0 and 1
+  -->
+<launch>
+    <!-- Machine settings. See http://www.ros.org/wiki/roslaunch/XML/machine -->
+    <machine name="local_alt" address="localhost" default="true" />
+    <!-- phidgets motor control HC -->
+    <node pkg="phidgets" type="motor_control_hc" name="motor_control_hc" respawn="true">
+        <!-- phidget device serial number -->
+        <param name="serial" value="-1" />
+    </node>
+    <!-- phidgets 8/8/8 interface kit -->
+    <node pkg="phidgets" type="interface_kit" name="interface_kit" respawn="true">
+        <!-- phidget device serial number -->
+        <param name="serial" value="-1" />
+    </node>
+    <!-- virtual joystick -->
+    <node pkg="phidgets" type="joystick" name="joystick" respawn="true">
+        <!-- interface kit sensor index for the horizontal joystick axis -->
+        <param name="horizontalaxis" value="1" />
+        <!-- interface kit sensor index for the vertical joystick axis -->
+        <param name="verticalaxis" value="2" />
+        <!-- direction of the horizontal joystick axis (1 or -1) -->
+        <param name="horizontaldirection" value="1" />
+        <!-- direction of the horizontal joystick axis (1 or -1) -->
+        <param name="verticaldirection" value="1" />
+    </node>
+    <!-- speech synthesis -->
+    <node name="talker" pkg="sound_play" type="soundplay_node.py" />
+    <!-- joystick control -->
+    <node pkg="phidgets" type="joystick_motor_control" name="joystick_motor_control" respawn="true">
+        <!-- whether joystick control is enabled by default or waits to be enabled by some other system -->
+        <param name="enable" value="true" />
+        <!-- maximum speed value sent to the motor controller -->
+        <param name="speed" value="30" />
+        <!-- start button index of the digital input on the interface kit -->
+        <param name="startbutton" value="0" />
+        <!-- stop button index of the digital input on the interface kit -->
+        <param name="stopbutton" value="1" />
+    </node>
+</launch>
+

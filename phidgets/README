@@ -1,0 +1,231 @@
+ROS package for Phidgets devices
+--------------------------------
+
+By Bob Mottram
+
+bob@sluggish.dyndns.org
+GPG ID: 0xEA982E38
+GPG Fingerprint: D538 1159 CD7A 2F80 2F06  ABA0 0452 CC7C EA98 2E38
+
+
+Currently supported devices
+---------------------------
+
+    Accelerometer
+    Advanced Servo Controller
+    High Speed Encoder
+    Interface Kit (8/8/8)
+    Motor Control HC
+    Stepper Motor Controller
+    RFID reader
+    Text LCD display
+    IR Remote
+    LED controller
+    Spatial
+    PH Sensor
+
+
+Installation
+------------
+
+1.  Install phidgets drivers from
+
+	sudo apt-get install libusb-dev
+	http://www.phidgets.com/drivers.php
+
+    Make sure that you copy the udev rules file in order to enable
+    access to USB devices.  You may need to reboot for this to
+    take effect.
+
+2.  Check out the code in your prefered directory
+
+	bzr branch lp:phidgets-ros-pkg
+
+    Rename the directory
+
+	mv phidgets-ros-pkg phidgets
+
+3.  Check out the sound_play package
+
+        sudo apt-get install ros-<distro>-sound-play
+
+4.  Add the phidgets and sound_play directories to ROS_PACKAGE_PATH
+
+    Check the existing ROS path:
+
+        echo $ROS_PACKAGE_PATH
+
+    Copy the resulting string and then add the following to your ~/.bashrc
+    file with the phidgets directory appended to it:
+
+        export ROS_PACKAGE_PATH=<paste existing path>:<phidgets path>
+
+    Then save and run:
+	
+    . ~/.bashrc
+
+5.  Make the package using 
+
+        rosmake --pre-clean phidgets
+
+    Note that if this is the first time the package has been
+    made after installing ROS the compilation process may take
+    some considerable time.
+
+6.  Connect your Phidget devices, then run
+
+        rosrun phidgets manager
+
+    This should list all the connected devices and their serial numbers.
+    If you have multiple devices of the same type connected you may want
+    to take note of the serial numbers, which can be subsequently referenced.
+
+    Press CTRL-C to exit.
+
+7.  Run the ROS core server.
+
+        roscore
+
+8.  In a seperate shell, to run a ROS node for a given device:
+
+        rosrun phidgets <device> _serial:=<serial number>
+
+    For example, for the advanced servo controller:
+
+        rosrun phidgets advanced_servo _serial:=-1
+
+    Using -1 for the serial number will connect to the first device
+    of that type.
+
+9.  Then in another shell you can run the corresponding client.
+    For example,
+
+        rosrun phidgets advanced_servo_client
+
+    The client programs are only intended to be illustrative of how to 
+    connect to a phidgets device and send or receive signals.  You can
+    use the client source code as a guide to how to integrate Phidget
+    devices with your own ROS system.
+
+
+Serial Numbers
+--------------
+
+Note that if you specify a serial number then the ROS topic changes accordingly.
+So for example
+
+    phidgets/encoder
+
+becomes
+
+    phidgets/encoder/<serial number>
+
+So if you need to connect to a device with a specific serial number the client
+code should be modified accordingly.
+
+
+Joystick control of Motor control HC
+------------------------------------
+
+To control the motors using a joystick connected to sensor sockets 1 and 2 on the interface kit:
+
+    roscore
+    rosrun phidgets motor_control_hc _serial:=-1
+    rosrun phidgets interface_kit _serial:=-1
+    rosrun phidgets joystick _horizontalaxis:=1 _verticalaxis:=2 _horizontaldirection:=1 _verticaldirection:=1
+    rosrun sound_play soundplay_node.py
+    rosrun phidgets joystick_motor_control _enable:=true _speed:=30 _startbutton:=0 _stopbutton:=1
+
+Note that if you wish to reverse the joystick axis directions set horizontaldirection and/or verticaldirection to -1.  
+
+The _startbutton and _stopbutton parameters are also optional.  If these are set then the start button needs to be pressed before the joystick can be used to control the motors.
+
+Alternatively an easier way to do this is to use the joystick_control launcher:
+
+    roslaunch phidgets joystick_control.launch
+
+
+Joystick control of Servos
+--------------------------
+
+To control a pair of servos using a joystick:
+
+    roscore
+    rosrun phidgets advanced_servo _serial:=-1
+    rosrun phidgets interface_kit _serial:=-1
+    rosrun phidgets joystick _horizontalaxis:=1 _verticalaxis:=2 _horizontaldirection:=1 _verticaldirection:=1
+    rosrun phidgets joystick_servo_control _enable:=true _speed:=30
+
+Note that if you wish to reverse the joystick axis directions set horizontaldirection and/or verticaldirection to -1.
+
+
+Running an odometry server
+--------------------------
+
+For a differential drive robot using a couple of high speed encoder phidgets you can run an odometry server as follows:
+
+    roscore
+    rosrun phidgets high_speed_encoder __name:=encoder_left _serial:=<left encoder serial>
+    rosrun phidgets high_speed_encoder __name:=encoder_right _serial:=<right encoder serial>
+    rosrun phidgets odometry _serialleft:=<left encoder serial> _serialright:=<right encoder serial> _wheelbase:=400 _countspermmleft:=100 _countspermmright:=100 _verbose:=true
+
+This will create a topic called "odom", of type nav_msgs::Odometry, which contains a pose estimate based upon the wheel odometry.  
+
+If you need to find out the serial numbers of the encoders then run:
+
+    rosrun phidgets manager
+
+which will list all connected phidget devices and their serial numbers.
+
+Alternatively an easier way to do this is to use the odometry launcher:
+
+    roslaunch phidgets odometry.launch
+
+make sure that you change the serial numbers contained within odometry.launch to those used by your own system.
+
+
+Odometry Calibration procedure
+------------------------------
+
+The number of counts per millimetre can be worked out knowing the encoder counts per revolution, gear ratio and wheel diameter.  However, in practice the wheel diameter is not always exactly known and may vary due to wear and changes in contact point with the ground.  Hence, it can be a good idea to calibrate the wheel odometry.
+
+    roslaunch phidgets joystick_control.launch
+    roslaunch phidgets odometry.launch
+
+Joystick the robot forwards by some significant distance, for example one or two metres, then take a note of the counts for the left and right encoders.  Measure the distance travelled as accurately as possible, then divide by the counts to obtain counts per millimetre, and update the odometry.launch script accordingly.  There are separate counts per millimetre values for the left and right wheels, because wheel shape and diameter may not completely identical.  The counts per millimetre value should always be positive.
+
+
+Phidgets LIDAR
+--------------
+
+You can use a servo and one or more IR range sensor/s to create a low cost LIDAR system.  This is intended for use with the following sensor types:
+
+    Name                 Index
+
+    Sharp GP2Y0A700K0F   0
+    Sharp GP2Y0A2JYK     1
+    Sharp GP2D120        2
+    Sharp GP2D12         3
+    Sharp GP2Y0A02YK     4
+
+To run the LIDAR node:
+
+    roscore
+    rosrun phidgets advanced_servo _serial:=-1
+    rosrun phidgets interface_kit _serial:=-1
+    rosrun phidgets lidar _panservo:=0 _sensor:=0 _sensortype:=0 _left:=100 _right:=160 _leftdegrees:=-45 _rightdegrees:=45 _cycletime:=4 _speed:=30
+    rosrun phidgets lidar_client (an example client subscribing to the LIDAR messages)
+
+Where panservo is the servo index, sensor is the sensor index on the interface kit, sensortype is the index of the sensor type (see above) and left and right are servo positions.  Cycletime is the scan time in seconds.  You will need to experiment with the speed and cycletime parameters, since the speed is given in arbitrary units used by the phidgets servo controller.
+
+It is also possible to use multiple IR sensors, like this:
+
+    rosrun phidgets lidar _panservo:=0 _sensor:=0 _sensortype:=0 _sensors:=4 _left:=100 _right:=160 _leftdegrees:=-45 _rightdegrees:=45 _cycletime:=4 _speed:=30
+
+Where _sensors denotes the number of sensors used.  These must be adjacent on the interface kit, begining with the index given by the _sensor parameter.  Separate sensor_msgs::LaserScan messages will be published for each sensor in a topic called phidgets/lidar.  Each sensor is assigned to a frame ID of lidar_sensor_<sensor index>
+
+Alternatively an easier way to do this is to use the lidar launcher:
+
+    roslaunch phidgets lidar.launch
+
+You may need to edit the contents of lidar.launch to match the setup of your system.

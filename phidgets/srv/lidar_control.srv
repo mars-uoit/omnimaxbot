@@ -1,0 +1,21 @@
+bool pause
+int32 pan_servo_index
+int32 tilt_servo_index
+int32 sensor_index
+int32 no_of_sensors
+int32[] sensor_type
+int32[] sensor_coupling
+float32 speed
+float32 acceleration
+float32 pan_position_left
+float32 pan_position_right
+float32 pan_position_left_angle_degrees
+float32 pan_position_right_angle_degrees
+float32 tilt_position_up
+float32 tilt_position_down
+float32 tilt_position_up_angle_degrees
+float32 tilt_position_down_angle_degrees
+int32 tilt_steps
+float32 cycle_time_sec
+---
+int32 ack

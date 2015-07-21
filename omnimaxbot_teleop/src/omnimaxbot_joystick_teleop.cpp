@@ -3,9 +3,9 @@
 #include <sensor_msgs/Joy.h>
 
 ros::Publisher vel_pub;
-double x_drive_scale = 0.5;
-double y_drive_scale = 0.5;
-double turn_scale = 1.0;
+double x_drive_scale;
+double y_drive_scale;
+double turn_scale;
 
 double plan_x = 0;
 double plan_y = 0;

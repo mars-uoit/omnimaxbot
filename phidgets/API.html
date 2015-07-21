@@ -1,0 +1,1271 @@
+<html xmlns:tomboy="http://beatniksoftware.com/tomboy" xmlns:link="http://beatniksoftware.com/tomboy/link" xmlns:size="http://beatniksoftware.com/tomboy/size"><head><META http-equiv="Content-Type" content="text/html; charset=utf-8"><title>ROS Phidgets API</title><style type="text/css">
+        
+	body {  }
+	h1 { font-size: xx-large;
+     	     font-weight: bold;
+     	     border-bottom: 1px solid black; }
+	div.note {
+		   position: relative;
+		   display: block;
+		   padding: 5pt;
+		   margin: 5pt; 
+		   white-space: -moz-pre-wrap; /* Mozilla */
+ 	      	   white-space: -pre-wrap;     /* Opera 4 - 6 */
+ 	      	   white-space: -o-pre-wrap;   /* Opera 7 */
+ 	      	   white-space: pre-wrap;      /* CSS3 */
+ 	      	   word-wrap: break-word;      /* IE 5.5+ */ }
+	</style></head><body><div class="note" id="ROS Phidgets API"><a name="ros phidgets api"></a><h1>ROS Phidgets API</h1>
+<span style="font-size:large">Phidgets Devices</span>
+
+<a style="color:#204A87" href="#accelerometer">Accelerometer</a>
+<a style="color:#204A87" href="#advanced servo controller">Advanced Servo Controller</a>
+<a style="color:#204A87" href="#high speed encoder">High Speed Encoder</a>
+<a style="color:#204A87" href="#interface kit">Interface Kit</a>
+<a style="color:#204A87" href="#ir">IR</a>
+<a style="color:#204A87" href="#led">LED</a>
+<a style="color:#204A87" href="#motor control hc">Motor Control HC</a>
+<a style="color:#204A87" href="#ph sensor">PH Sensor</a>
+<a style="color:#204A87" href="#rfid">RFID</a>
+<a style="color:#204A87" href="#spatial">Spatial</a>
+<a style="color:#204A87" href="#stepper controller">Stepper Controller</a>
+<a style="color:#204A87" href="#text lcd display">Text LCD Display</a>
+
+
+<span style="font-size:large">Virtual Devices</span>
+
+<a style="color:#204A87" href="#odometry">Odometry</a>
+<a style="color:#204A87" href="#joystick">Joystick</a>
+<a style="color:#204A87" href="#joystick motor control">Joystick Motor Control</a>
+<a style="color:#204A87" href="#joystick servo control">Joystick Servo Control</a>
+<a style="color:#204A87" href="#servo glimpse">Servo Glimpse</a>
+
+<span style="font-size:large">Message Formats</span>
+
+<a style="color:#204A87" href="#accelerometer_params">accelerometer_params</a>
+<a style="color:#204A87" href="#encoder_params">encoder_params</a>
+<a style="color:#204A87" href="#interface_kit_params">interface_kit_params</a>
+<a style="color:#204A87" href="#ir_params">ir_params</a>
+<a style="color:#204A87" href="#joystick_params">joystick_params</a>
+<a style="color:#204A87" href="#led_params">led_params</a>
+<a style="color:#204A87" href="#motor_params">motor_params</a>
+<a style="color:#204A87" href="#phsensor_params">phsensor_params</a>
+<a style="color:#204A87" href="#rfid_params">rfid_params</a>
+<a style="color:#204A87" href="#servo_params">servo_params</a>
+<a style="color:#204A87" href="#spatial_params">spatial_params</a>
+<a style="color:#204A87" href="#stepper_params">stepper_params</a>
+<a style="color:#204A87" href="#textlcd_params">textlcd_params</a>
+</div>
+<div class="note" id="Accelerometer"><a name="accelerometer"></a><h1>Accelerometer</h1>
+<b>Specification:</b> <a style="color:#3465A4" href="http://www.phidgets.com/products.php?category=5&amp;product_id=1059">http://www.phidgets.com/products.php?category=5&amp;product_id=1059</a>
+<b>Source File:</b> accelerometer.cpp
+<b>Example:</b> accelerometer_client.cpp
+
+<b><span style="font-size:large">Published Topics</span></b>
+
+Default topic:
+
+    <b><i>phidgets/accelerometer</i></b>  &lt;<a style="color:#204A87" href="#accelerometer_params">accelerometer_params</a>&gt;
+
+This can also be altered by specifying <i>topic_path</i>, <i>name</i> and <i>serial_number</i> as parameters.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")
+
+</i></b>    This sets the topic path for the device
+<b><i>
+name (str, default: "accelerometer")
+
+</i></b>    An optional name for the device.  The complete topic is given as the topic path plus the name.
+
+<b><i>serial_number (int, default: -1)</i></b>
+
+    The serial number for the device. A value of -1 indicates that any serial number is acceptable. Use this with caution as there is no guarantee of which device gets connected if there is more than one device connected. 
+
+<b><i>sensitivity (float, default: 0.0)</i></b>
+
+    This is the amount that an acceleration value must change to trigger an event and publish new data to the topic. The default of 0.0 generates events and publishes to the topic as fast as the hardware can trigger events (our tests show ~62HZ) 
+
+<b><i>x_axis_id (int, default: 0)</i></b>
+
+    The accelerometer hardware provides values for axes that are indexed 0-2. Depending on how the device is mounted, the x,y,z mapping can change. Use this parameter to specify the x-axis. 
+
+<b><i>y_axis_id (int, default: 1)</i></b>
+
+    The accelerometer hardware provides values for axes that are indexed 0-2. Depending on how the device is mounted, the x,y,z mapping can change. Use this parameter to specify the y-axis. 
+
+<b><i>z_axis_id (int, default: 2)</i></b>
+
+    The accelerometer hardware provides values for axes that are indexed 0-2. Depending on how the device is mounted, the x,y,z mapping can change. Use this parameter to specify the z-axis.
+</div>
+<div class="note" id="Advanced Servo Controller"><a name="advanced servo controller"></a><h1>Advanced Servo Controller</h1>
+<b>Specification:</b> <a style="color:#3465A4" href="http://www.phidgets.com/products.php?category=11&amp;product_id=1061">http://www.phidgets.com/products.php?category=11&amp;product_id=1061</a>
+<b>Source File:</b>  advanced_servo.cpp
+<b>Example:</b>  advanced_servo_client.cpp
+
+<b><span style="font-size:large">Published Topics</span></b>
+
+The default topic is
+
+    <b><i>phidgets/servos</i></b> &lt;<a style="color:#204A87" href="#servo_params">servo_params</a>&gt;
+
+This can also be altered by specifying <i>topic_path</i>, <i>name</i> and <i>serial_number</i> as parameters.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")
+
+</i></b>    This sets the topic path for the device
+<b><i>
+name (str, default: "servos")
+
+</i></b>    An optional name for the device.  The complete topic is given as the topic path plus the name.
+
+<b><i>serial_number (int, default: -1)</i></b>
+
+    The serial number for the device. A value of -1 indicates that any serial number is acceptable. Use this with caution as there is no guarantee of which device gets connected if there is more than one device connected. 
+
+<b><span style="font-size:large">Service Format</span></b>
+
+Commands are sent to servos in the following format.  The units for position, speed and acceleration are as given in the specification.
+
+<b><i>int32 index</i></b>
+
+    Index number of the servo.
+
+<b><i>bool engage</i></b>
+
+    Whether to engage/energise the servo.
+
+<b><i>float32 position</i></b>
+
+    The desired reference position for the servo.
+
+<b><i>float32 speed</i></b>
+
+    The speed at which the servo should move.
+
+<b><i>float32 acceleration</i></b>
+
+    The acceleration at which the servo should move.
+</div>
+<div class="note" id="High Speed Encoder"><a name="high speed encoder"></a><h1>High Speed Encoder</h1>
+<b>Specification:</b> <a style="color:#3465A4" href="http://www.phidgets.com/products.php?category=1&amp;product_id=1057">http://www.phidgets.com/products.php?category=1&amp;product_id=1057</a>
+<b>Source File:</b>  high_speed_encoder.cpp
+<b>Example:</b>  high_speed_encoder_client.cpp
+
+<b><span style="font-size:large">Published Topics</span></b>
+
+The default topic is
+
+    <b><i>phidgets/encoder</i></b> &lt;<a style="color:#204A87" href="#encoder_params">encoder_params</a>&gt;
+
+This can also be altered by specifying <i>topic_path</i>, <i>name</i> and <i>serial_number</i> as parameters.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")</i></b>
+
+    This sets the topic path for the device
+
+<b><i>name (str, default: "encoder")</i></b>
+
+    An optional name for the device.  The complete topic is given as the topic path plus the name.
+
+<b><i>serial_number (int, default: -1)</i></b>
+
+    The serial number for the device. A value of -1 indicates that any serial number is acceptable. Use this with caution as there is no guarantee of which device gets connected if there is more than one device connected. 
+
+<b><span style="font-size:large">Message Format</span></b>
+
+<b><i>Header header</i></b>
+
+    Message header.
+
+<b><i>int32 index</i></b>
+
+    Index number of the encoder.
+
+<b><i>int32 count</i></b>
+
+    Returned count from the encoder.
+
+<b><i>int32 count_change</i></b>
+
+    Change in encoder count between this and the previous value.
+
+<b><i>int32 time</i></b>
+
+    Time when the encoder count was taken.</div>
+<div class="note" id="Interface Kit"><a name="interface kit"></a><h1>Interface Kit</h1>
+<b>Specification:</b> <a style="color:#3465A4" href="http://www.phidgets.com/products.php?category=0&amp;product_id=1018">http://www.phidgets.com/products.php?category=0&amp;product_id=1018</a>
+<b>Source File:</b>  interface_kit.cpp
+<b>Example:</b>  interface_kit_client.cpp
+
+<b><span style="font-size:large">Published Topics</span></b>
+
+The default topic is
+
+    <b><i>phidgets/</i></b><b>interface_kit</b> &lt;<a style="color:#204A87" href="#interface_kit_params">interface_kit_params</a>&gt;
+
+This can also be altered by specifying <i>topic_path</i>, <i>name</i> and <i>serial_number</i> as parameters.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")
+
+</i></b>    This sets the topic path for the device
+<b><i>
+name (str, default: "interface_kit")
+
+</i></b>    An optional name for the device.  The complete topic is given as the topic path plus the name.
+
+<b><i>serial_number (int, default: -1)</i></b>
+
+    The serial number for the device. A value of -1 indicates that any serial number is acceptable. Use this with caution as there is no guarantee of which device gets connected if there is more than one device connected. 
+
+<b><span style="font-size:large">Service Format</span></b>
+
+Digital output states or the trigger levels for analogue inputs are set using the following format.
+
+<b><i>int32 index</i></b>
+
+    Index number of the digital output or analogue input.
+
+<b><i>int32 value_type</i></b>
+
+    Type of value being set.
+    1 = Digital output.
+    2 = Analogue sensor trigger level.
+
+<b><i>int32 value</i></b>
+
+    Value to be set.
+
+<b><span style="font-size:large">Message Format</span></b>
+
+Values for inputs are received in the following format.
+
+<b><i>Header header</i></b>
+
+    Message header.
+
+<b><i>int32 index</i></b>
+
+    Index number of the input or output.
+
+<b><i>int32 value_type</i></b>
+
+    Value type of the input.
+    1 = Digital input.
+    2 = Digital Output.
+    3 = Analogue input.
+
+<b><i>int32 value</i></b>
+
+    Returned value of the input or output.</div>
+<div class="note" id="IR"><a name="ir"></a><h1>IR</h1>
+<b>Specification:</b> <a style="color:#3465A4" href="http://www.phidgets.com/products.php?category=27&amp;product_id=1055">http://www.phidgets.com/products.php?category=27&amp;product_id=1055</a>
+<b>Source File:</b>  ir.cpp
+<b>Example:</b>  ir_client.cpp
+
+<b><span style="font-size:large">Published Topics</span></b>
+
+The default topic is
+
+    <b><i>phidgets/ir</i></b> &lt;<a style="color:#204A87" href="#ir_params">ir_params</a>&gt;
+
+This can also be altered by specifying <i>topic_path</i>, <i>name</i> and <i>serial_number</i> as parameters.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")
+
+</i></b>    This sets the topic path for the device
+<b><i>
+name (str, default: "ir")
+
+</i></b>    An optional name for the device.  The complete topic is given as the topic path plus the name.
+
+<b><i>serial_number (int, default: -1)</i></b>
+
+    The serial number for the device. A value of -1 indicates that any serial number is acceptable. Use this with caution as there is no guarantee of which device gets connected if there is more than one device connected. 
+</div>
+<div class="note" id="LED"><a name="led"></a><h1>LED</h1>
+<b>Specification:</b> <a style="color:#3465A4" href="http://www.phidgets.com/products.php?category=15&amp;product_id=1031">http://www.phidgets.com/products.php?category=15&amp;product_id=1031</a>
+<b>Source File:</b>  led.cpp
+<b>Example:</b>  led_client.cpp
+
+<b><span style="font-size:large">Published Topics</span></b>
+
+The default topic is
+
+    <b><i>phidgets/led</i></b> &lt;<a style="color:#204A87" href="#led_params">led_params</a>&gt;
+
+This can also be altered by specifying <i>topic_path</i>, <i>name</i> and <i>serial_number</i> as parameters.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")
+
+</i></b>    This sets the topic path for the device
+<b><i>
+name (str, default: "led")
+
+</i></b>    An optional name for the device.  The complete topic is given as the topic path plus the name.
+
+<b><i>serial_number (int, default: -1)</i></b>
+
+    The serial number for the device. A value of -1 indicates that any serial number is acceptable. Use this with caution as there is no guarantee of which device gets connected if there is more than one device connected. 
+
+<b><span style="font-size:large">Service Format</span></b>
+
+byte[] brightness
+
+    sets the brightness value for each LED, in the range 0-100.</div>
+<div class="note" id="Motor Control HC"><a name="motor control hc"></a><h1>Motor Control HC</h1>
+<b>Specification:</b> <a style="color:#3465A4" href="http://www.phidgets.com/products.php?category=12&amp;product_id=1064">http://www.phidgets.com/products.php?category=12&amp;product_id=1064</a>
+<b>Source File:</b>  motor_control_hc.cpp
+<b>Example:</b>  motor_control_hc_client.cpp
+
+<b><span style="font-size:large">Published Topics</span></b>
+
+The default topic is:
+
+    <b><i>phidgets/motorcontrol</i></b> &lt;<a style="color:#204A87" href="#motor_params">motor_params</a>&gt;
+
+This can also be altered by specifying <i>topic_path</i>, <i>name</i> and <i>serial_number</i> as parameters.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")
+
+</i></b>    This sets the topic path for the device
+<b><i>
+name (str, default: "motorcontrol")
+
+</i></b>    An optional name for the device.  The complete topic is given as the topic path plus the name.
+
+<b><i>serial_number (int, default: -1)</i></b>
+
+    The serial number for the device. A value of -1 indicates that any serial number is acceptable. Use this with caution as there is no guarantee of which device gets connected if there is more than one device connected. 
+
+<b><i>timeout (int, default: 2)</i></b>
+
+This sets a timeout period in seconds after which if a motor control command has not been received then the motors will be halted.  This is a safety feature to ensure that the motors don't keep spinning if higher level systems have crashed or hung.
+
+<b><span style="font-size:large">Subscriptions</span></b>
+
+<b><i>cmd_vel</i></b>
+
+    This is a message of type <i>geometry_msgs::Twist</i> used to by other systems to request motor movement in a particular direction.  The <i>linear.x</i> property of this message is used to set the angular speed and <i>linear.y</i> is used to set the forward speed.
+</div>
+<div class="note" id="PH Sensor"><a name="ph sensor"></a><h1>PH Sensor</h1>
+<b>Specification:</b> <a style="color:#3465A4" href="http://www.phidgets.com/products.php?category=19&amp;product_id=1058">http://www.phidgets.com/products.php?category=19&amp;product_id=1058</a>
+<b>Source File:</b>  phsensor.cpp
+<b>Example:</b>  phsensor_client.cpp
+
+<b><span style="font-size:large">Published Topics</span></b>
+
+The default topic is
+
+    <b><i>phidgets/phsensor</i></b> &lt;<a style="color:#204A87" href="#phsensor_params">phsensor_params</a>&gt;
+
+This can also be altered by specifying <i>topic_path</i>, <i>name</i> and <i>serial_number</i> as parameters.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")
+
+</i></b>    This sets the topic path for the device
+<b><i>
+name (str, default: "phsensor")
+
+</i></b>    An optional name for the device.  The complete topic is given as the topic path plus the name.
+
+<b><i>serial_number (int, default: -1)</i></b>
+
+    The serial number for the device. A value of -1 indicates that any serial number is acceptable. Use this with caution as there is no guarantee of which device gets connected if there is more than one device connected. 
+
+</div>
+<div class="note" id="RFID"><a name="rfid"></a><h1>RFID</h1>
+<b>Specification:</b> <a style="color:#3465A4" href="http://www.phidgets.com/products.php?category=14&amp;product_id=1023">http://www.phidgets.com/products.php?category=14&amp;product_id=1023</a>
+<b>Source File:</b>  rfid.cpp
+<b>Example:</b>  rfid_client.cpp
+
+<b><span style="font-size:large">Published Topics</span></b>
+
+The default topic is
+
+    <b><i>phidgets/rfid</i></b> &lt;<a style="color:#204A87" href="#rfid_params">rfid_params</a>&gt;
+
+This can also be altered by specifying <i>topic_path</i>, <i>name</i> and <i>serial_number</i> as parameters.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")
+
+</i></b>    This sets the topic path for the device
+<b><i>
+name (str, default: "rfid")
+
+</i></b>    An optional name for the device.  The complete topic is given as the topic path plus the name.
+
+<b><i>serial_number (int, default: -1)</i></b>
+
+    The serial number for the device. A value of -1 indicates that any serial number is acceptable. Use this with caution as there is no guarantee of which device gets connected if there is more than one device connected. 
+
+</div>
+<div class="note" id="Spatial"><a name="spatial"></a><h1>Spatial</h1>
+<b>Specification:</b> <a style="color:#3465A4" href="http://www.phidgets.com/products.php?category=5&amp;product_id=1056">http://www.phidgets.com/products.php?category=5&amp;product_id=1056</a>
+<b>Source File:</b>  spatial.cpp
+<b>Example:</b>  spatial_client.cpp
+
+<b><span style="font-size:large">Published Topics</span></b>
+
+The default topic is:
+
+    <b><i>phidgets/spatial</i></b> &lt;<a style="color:#204A87" href="#spatial_params">spatial_params</a>&gt;
+
+This can also be altered by specifying <i>topic_path</i>, <i>name</i> and <i>serial_number</i> as parameters.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")
+
+</i></b>    This sets the topic path for the device
+<b><i>
+name (str, default: "spatial")
+
+</i></b>    An optional name for the device.  The complete topic is given as the topic path plus the name.
+
+<b><i>serial_number (int, default: -1)</i></b>
+
+    The serial number for the device. A value of -1 indicates that any serial number is acceptable. Use this with caution as there is no guarantee of which device gets connected if there is more than one device connected. 
+</div>
+<div class="note" id="Stepper Controller"><a name="stepper controller"></a><h1>Stepper Controller</h1>
+<b>Specification:</b> <a style="color:#3465A4" href="http://www.phidgets.com/products.php?category=13&amp;product_id=1062">http://www.phidgets.com/products.php?category=13&amp;product_id=1062</a>
+<b>Source File:</b>  stepper.cpp
+<b>Example:</b>  stepper_client.cpp
+
+<b><span style="font-size:large">Published Topics</span></b>
+
+The default topic is
+
+    <b><i>phidgets/stepper</i></b> &lt;<a style="color:#204A87" href="#stepper_params">stepper_params</a>&gt;
+
+This can also be altered by specifying <i>topic_path</i>, <i>name</i> and <i>serial_number</i> as parameters.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")
+
+</i></b>    This sets the topic path for the device
+<b><i>
+name (str, default: "stepper")
+
+</i></b>    An optional name for the device.  The complete topic is given as the topic path plus the name.
+
+<b><i>serial_number (int, default: -1)</i></b>
+
+    The serial number for the device. A value of -1 indicates that any serial number is acceptable. Use this with caution as there is no guarantee of which device gets connected if there is more than one device connected. 
+
+<b><span style="font-size:large">Service Format</span></b>
+
+Commands are sent to the stepper motors in the following format:
+
+<b><i>int32 index</i></b>
+
+    Index number of the motor.
+
+<b><i>bool engage</i></b>
+
+    Whether to engage/energise the motor.
+
+<b><i>float32 velocity</i></b>
+
+    Reference velocity for the motor.
+
+<b><i>float32 acceleration</i></b>
+
+    Reference acceleration for the motor.
+
+<b><i>int64 position</i></b>
+
+    Reference position for the motor.
+
+<b><i>bool reset_position</i></b>
+
+    Resets the position count.
+</div>
+<div class="note" id="Text LCD Display"><a name="text lcd display"></a><h1>Text LCD Display</h1>
+Specification: <a style="color:#3465A4" href="http://www.phidgets.com/products.php?category=15&amp;product_id=1203">http://www.phidgets.com/products.php?category=15&amp;product_id=1203</a>
+<b>Source File:</b>  textlcd.cpp
+<b>Example:</b>  textlcd_client.cpp
+
+<b><span style="font-size:large">Published Topics</span></b>
+
+The default topic is
+
+    <b><i>phidgets/textlcd</i></b> &lt;<a style="color:#204A87" href="#textlcd_params">textlcd_params</a>&gt;
+
+This can also be altered by specifying <i>topic_path</i>, <i>name</i> and <i>serial_number</i> as parameters.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")
+
+</i></b>    This sets the topic path for the device
+<b><i>
+name (str, default: "textlcd")
+
+</i></b>    An optional name for the device.  The complete topic is given as the topic path plus the name.
+
+<b><i>serial_number (int, default: -1)</i></b>
+
+    The serial number for the device. A value of -1 indicates that any serial number is acceptable. Use this with caution as there is no guarantee of which device gets connected if there is more than one device connected. 
+
+</div>
+<div class="note" id="Odometry"><a name="odometry"></a><h1>Odometry</h1>
+<b>Source File:</b> odometry.cpp
+
+This uses the Phidgets <a style="color:#204A87" href="#high speed encoder">high speed encoder</a> devices to create an odometry frame for a two wheel/track differential drive system.
+
+<b><span style="font-size:large">Published Topics</span></b>
+
+The default topic is:
+
+    <b><i>odom</i></b> &lt;<i>nav_msgs::Odometry</i>&gt;
+
+This can also be altered using the <i>name</i> parameter.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>name (str, default: "odom") 
+
+</i></b>    Published topic name.
+
+<b><i>encodername (str, default: "encoder")</i></b> 
+
+    Name of the encoders.
+
+<b><i>topic_path (str, default: "phidgets/")
+
+</i></b>    This sets the topic path for the encoder devices.
+
+<b><i>serialleft (int)</i></b>
+
+    Serial number of the left encoder.
+
+<b><i>serialright (int)</i></b>
+
+    Serial number of the right encoder.
+
+<b><i>encoderindexleft (int, default: -1)</i></b>
+
+    If the Phidget device has two or more encoders this specifies the index of the left encoder.
+
+<b><i>encoderindexright (int, default: -1)</i></b>
+
+    If the Phidget device has two or more encoders this specifies the index of the right encoder.
+
+<b><i>base_link (str, default: "base_link")</i></b> 
+
+    Base frame.
+
+<b><i>frame_id (str, default: "odom")</i></b>
+
+    Odometry frame.
+
+<b><i>wheelbase (int, default: 400)</i></b>
+
+    The distance between wheels in millimetres.
+
+<b><i>countspermmleft (int, default: 1000)</i></b>
+
+    The number of encoder counts per millimetre of travel for the left wheel.
+
+<b><i>countspermmright (int, default: 1000)</i></b>
+
+    The number of encoder counts per millimetre of travel for the right wheel.
+
+<b><i>verbose (bool)</i></b>
+
+    Whether to report additional debugging information.
+
+<b><span style="font-size:large">Example launch file</span></b> 
+
+&lt;!--
+  Launcher for differential drive wheel odometry.
+  Change the encoder serial numbers as needed.  The serial numbers can be viewed by running:
+      rosrun phidgets manager
+  This requires:
+      2 x Phidgets <a style="color:#204A87" href="#high speed encoder">high speed encoder</a>
+      A known number of encoder counts per millimetre of travel for each wheel
+  --&gt;
+&lt;launch&gt;
+    &lt;!-- Machine settings. See <a style="color:#3465A4" href="http://www.ros.org/wiki/roslaunch/XML/machine">http://www.ros.org/wiki/roslaunch/XML/machine</a> --&gt;
+    &lt;machine name="local_alt" address="localhost" default="true" /&gt;
+    &lt;!-- phidgets high speed encoders --&gt;
+    &lt;node pkg="phidgets" type="high_speed_encoder" name="encoder_left" respawn="true"&gt;
+        &lt;!-- phidget device serial number for the left encoder --&gt;
+        &lt;param name="serial_number" value="52980" /&gt;
+    &lt;/node&gt;
+    &lt;node pkg="phidgets" type="high_speed_encoder" name="encoder_right" respawn="true"&gt;
+        &lt;!-- phidget device serial number for the right encoder --&gt;
+        &lt;param name="serial_number" value="54104" /&gt;
+    &lt;/node&gt;
+    &lt;!-- odometry --&gt;
+    &lt;node pkg="phidgets" type="odometry" name="odometry" respawn="true" output="screen"&gt;
+        &lt;!-- phidget device serial numbers for the left and right encoders --&gt;
+        &lt;param name="serialleft" value="52980" /&gt;
+        &lt;param name="serialright" value="54104" /&gt;
+        &lt;!-- separation between the two wheels in millimetres --&gt;
+        &lt;param name="wheelbase" value="400" /&gt;
+        &lt;!-- number of encoder counts per millimetre for the left wheel --&gt;
+        &lt;param name="countspermmleft" value="100" /&gt;
+        &lt;!-- number of encoder counts per millimetre for the right wheel --&gt;
+        &lt;param name="countspermmright" value="100" /&gt;
+        &lt;!-- whether to show additional info --&gt;
+        &lt;param name="verbose" value="true" /&gt;
+    &lt;/node&gt;
+&lt;/launch&gt;
+</div>
+<div class="note" id="Joystick"><a name="joystick"></a><h1>Joystick</h1>
+<b>Specification:</b> <a style="color:#3465A4" href="http://www.phidgets.com/products.php?category=7&amp;product_id=1113">http://www.phidgets.com/products.php?category=7&amp;product_id=1113</a>
+<b>Source File:</b> joystick.cpp
+
+This is a virtual device, which uses the Mini Joystick Sensor (or any other similar device) and a Phidgets <a style="color:#204A87" href="#interface kit">interface kit</a>.
+
+The joystick is disabled by default, but can be enabled by setting the <i>joystick/enable</i> parameter to true.
+
+<b><span style="font-size:large">Published Topics</span></b>
+
+The default topic is:
+
+    <b><i>phidgets/joystick</i></b> &lt;<a style="color:#204A87" href="#joystick_params">joystick_params</a>&gt;
+
+This can also be altered using the <i>topic_path</i> and <i>name</i> parameters.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")
+</i></b>
+    This sets the topic path for the device
+
+<b><i>name (str, default: "joystick")
+</i></b>
+    An optional name for the device.  The complete topic is given as the topic path plus the name.
+
+<b><i>interfacekitname (str, default: "interface_kit")</i></b>
+
+    An optional name for the <a style="color:#204A87" href="#interface kit">interface kit</a>.  The complete topic of the <a style="color:#204A87" href="#interface kit">interface kit</a> is given as the topic path plus this name.
+
+<b><i>horizontalaxis (int, default: 1)</i></b>
+
+    Index number of the analogue input used for the horizontal (sideways) joystick axis.
+
+<b><i>verticalaxis (int, default: 2)</i></b>
+
+    Index number of the analogue input used for the vertical (forwards) joystick axis.
+
+<b><i>horizontaldirection (int, default: 1)</i></b>
+
+    Defines whether the signal from the horizontal (sideways) joystick axis should be reversed.  To reverse the direction set this value to -1.
+
+<b><i>verticaldirection (int, default: 1)</i></b>
+
+    Defines whether the signal from the vertical (forward) joystick axis should be reversed.  To reverse the direction set this value to -1.
+
+<b><i>buttoninput (int, default: -1)</i></b>
+
+    If not set to -1 this specifies the index number of the digital input on the <a style="color:#204A87" href="#interface kit">interface kit</a> to be used as the joystick button.
+</div>
+<div class="note" id="Joystick Motor Control"><a name="joystick motor control"></a><h1>Joystick Motor Control</h1>
+<b>Source File:</b> <a style="color:#204A87" href="#joystick">joystick</a>_motor_control.cpp
+
+This is a virtual device, which uses the Mini <a style="color:#204A87" href="#joystick">Joystick</a> Sensor, Phidgets <a style="color:#204A87" href="#interface kit">interface kit</a> and <a style="color:#204A87" href="#motor control hc">motor control HC</a> devices in order to enable <a style="color:#204A87" href="#joystick">joystick</a> control of a two wheel/track differential drive system.
+
+This can be enabled or disabled by setting the <i><a style="color:#204A87" href="#joystick">joystick</a></i><i>/enable_motor_control</i> parameter.
+
+<b><span style="font-size:large">Published Topics</span></b>
+
+The default topic is:
+
+<b><i>    cmd_vel</i></b> &lt;<i>geometry_msgs::Twist</i>&gt;
+
+This can be altered by setting the <i>name</i> parameter.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")
+</i></b>
+    This sets the topic path for the Phidgets devices
+
+<b><i>name (str, default: "cmd_vel")</i></b>
+
+    Topic name of the velocity command to be published.
+
+<b><i>joystickname (str, default: "<a style="color:#204A87" href="#joystick">joystick</a></i></b><b><i>")</i></b>
+
+    An optional name for the <a style="color:#204A87" href="#joystick">joystick</a> virtual device.
+
+<b><i>motorcontrolname (str, default: "motorcontrol")</i></b>
+
+    An optional name for the <a style="color:#204A87" href="#motor control hc">motor control HC</a> device.
+
+<b><i>interfacekitname (str, default: "interface_kit")</i></b>
+
+    An optional name for the <a style="color:#204A87" href="#interface kit">interface kit</a>.  The complete topic of the <a style="color:#204A87" href="#interface kit">interface kit</a> is given as the topic path plus this name.
+
+<b><i>startbutton (int, default: -1)</i></b>
+
+    If not set to -1 this specifies the index of a digital input on the <a style="color:#204A87" href="#interface kit">interface kit</a> to be used to start <a style="color:#204A87" href="#joystick">joystick</a> control of the motors.
+
+<b><i>stopbutton (int, default: -1)</i></b>
+
+    If not set to -1 this specifies the index of a digital input on the <a style="color:#204A87" href="#interface kit">interface kit</a> to be used to stop <a style="color:#204A87" href="#joystick">joystick</a> control of the motors.
+
+<b><i>enablesound (str, default: "<a style="color:#204A87" href="#joystick">Joystick</a></i></b><b><i> control enabled")</i></b>
+
+    Some text to be spoken via text-to-speech when <a style="color:#204A87" href="#joystick">joystick</a> motor control is initially enabled.
+
+<b><i>startbuttonsound (str, default: "Started")</i></b>
+
+    Some text to be spoken via text-to-speech when <a style="color:#204A87" href="#joystick">joystick</a> motor control is started by pressing the start button.
+
+<b><i>stopbuttonsound (str, default: "Stopped")</i></b>
+
+    Some text to be spoken via text-to-speech when <a style="color:#204A87" href="#joystick">joystick</a> motor control is stopped by pressing the stop button.
+
+<b><i>speed (float, default: 20)</i></b>
+
+    Speed value sent to the motors.
+
+<b><i>acceleration (float, default: 20)</i></b>
+
+    Acceleration value sent to the motors.
+
+<b><i>deadband (float, default: 0.1)</i></b>
+
+    <a style="color:#204A87" href="#joystick">Joystick</a> deadband in the range 0-1.  This helps to prevent continual speed changes being made if the <a style="color:#204A87" href="#joystick">joystick</a> moves by some small amount.
+
+<b><span style="font-size:large">Example launch file</span></b>
+
+&lt;!--
+  Launcher for <a style="color:#204A87" href="#joystick">joystick</a> control of two motors.
+  This requires:
+      Phidgets <a style="color:#204A87" href="#motor control hc">motor control HC</a>
+      Phidgets 8/8/8 <a style="color:#204A87" href="#interface kit">interface kit</a>
+      Analog <a style="color:#204A87" href="#joystick">joystick</a> connected to sensors 1 and 2 on the <a style="color:#204A87" href="#interface kit">interface kit</a>
+      Start and stop buttons (normally off momentary switch) connected to digital inputs 0 and 1
+  --&gt;
+&lt;launch&gt;
+    &lt;!-- Machine settings. See <a style="color:#3465A4" href="http://www.ros.org/wiki/roslaunch/XML/machine">http://www.ros.org/wiki/roslaunch/XML/machine</a> --&gt;
+    &lt;machine name="local_alt" address="localhost" default="true" /&gt;
+    &lt;!-- phidgets <a style="color:#204A87" href="#motor control hc">motor control HC</a> --&gt;
+    &lt;node pkg="phidgets" type="motor_control_hc" name="motor_control_hc" respawn="true"&gt;
+        &lt;!-- phidget device serial number --&gt;
+        &lt;param name="serial_number" value="-1" /&gt;
+    &lt;/node&gt;
+    &lt;!-- phidgets 8/8/8 <a style="color:#204A87" href="#interface kit">interface kit</a> --&gt;
+    &lt;node pkg="phidgets" type="interface_kit" name="interface_kit" respawn="true"&gt;
+        &lt;!-- phidget device serial number --&gt;
+        &lt;param name="serial_number" value="-1" /&gt;
+    &lt;/node&gt;
+    &lt;!-- virtual <a style="color:#204A87" href="#joystick">joystick</a> --&gt;
+    &lt;node pkg="phidgets" type="<a style="color:#204A87" href="#joystick">joystick</a>" name="<a style="color:#204A87" href="#joystick">joystick</a>" respawn="true"&gt;
+        &lt;!-- <a style="color:#204A87" href="#interface kit">interface kit</a> sensor index for the horizontal <a style="color:#204A87" href="#joystick">joystick</a> axis --&gt;
+        &lt;param name="horizontalaxis" value="1" /&gt;
+        &lt;!-- <a style="color:#204A87" href="#interface kit">interface kit</a> sensor index for the vertical <a style="color:#204A87" href="#joystick">joystick</a> axis --&gt;
+        &lt;param name="verticalaxis" value="2" /&gt;
+        &lt;!-- direction of the horizontal <a style="color:#204A87" href="#joystick">joystick</a> axis (1 or -1) --&gt;
+        &lt;param name="horizontaldirection" value="1" /&gt;
+        &lt;!-- direction of the horizontal <a style="color:#204A87" href="#joystick">joystick</a> axis (1 or -1) --&gt;
+        &lt;param name="verticaldirection" value="1" /&gt;
+    &lt;/node&gt;
+    &lt;!-- speech synthesis --&gt;
+    &lt;node name="talker" pkg="sound_play" type="soundplay_node.py" /&gt;
+    &lt;!-- <a style="color:#204A87" href="#joystick">joystick</a> control --&gt;
+    &lt;node pkg="phidgets" type="<a style="color:#204A87" href="#joystick">joystick</a>_motor_control" name="<a style="color:#204A87" href="#joystick">joystick</a>_motor_control" respawn="true"&gt;
+        &lt;!-- whether <a style="color:#204A87" href="#joystick">joystick</a> control is enabled by default or waits to be enabled by some other system --&gt;
+        &lt;param name="enable" value="true" /&gt;
+        &lt;!-- maximum speed value sent to the motor controller --&gt;
+        &lt;param name="speed" value="30" /&gt;
+        &lt;!-- start button index of the digital input on the <a style="color:#204A87" href="#interface kit">interface kit</a> --&gt;
+        &lt;param name="startbutton" value="0" /&gt;
+        &lt;!-- stop button index of the digital input on the <a style="color:#204A87" href="#interface kit">interface kit</a> --&gt;
+        &lt;param name="stopbutton" value="1" /&gt;
+    &lt;/node&gt;
+&lt;/launch&gt;
+</div>
+<div class="note" id="Joystick Servo Control"><a name="joystick servo control"></a><h1>Joystick Servo Control</h1>
+<b>Source File:</b> <a style="color:#204A87" href="#joystick">joystick</a>_servo_control.cpp
+
+This is a virtual device, which uses the Mini <a style="color:#204A87" href="#joystick">Joystick</a> Sensor, Phidgets <a style="color:#204A87" href="#interface kit">interface kit</a> and <a style="color:#204A87" href="#advanced servo controller">advanced servo controller</a> devices in order to enable <a style="color:#204A87" href="#joystick">joystick</a> control of a pair of servos.
+
+This can be enabled or disabled by setting the <i><a style="color:#204A87" href="#joystick">joystick</a></i><i>/enable_servo_control</i> parameter.
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")
+</i></b>
+    This sets the topic path for the Phidgets devices
+
+<b><i>joystickname (str, default: "<a style="color:#204A87" href="#joystick">joystick</a></i></b><b><i>")</i></b>
+
+    An optional name for the <a style="color:#204A87" href="#joystick">joystick</a> virtual device.
+
+<b><i>servocontrolname (str, default: "servos")</i></b>
+
+    An optional name for the <a style="color:#204A87" href="#advanced servo controller">advanced servo controller</a> device.
+
+<b><i>servoreference (str, default: "servo_reference")</i></b>
+
+    Service used to set servo positions.
+
+<b><i>servoindex0 (int, default 0)</i></b>
+
+    Index number of the servo which will be controlled by the horizontal (sideways) <a style="color:#204A87" href="#joystick">joystick</a> axis.
+
+<b><i>servoindex1 (int, default 1)</i></b>
+
+    Index number of the servo which will be controlled by the vertical (forward) <a style="color:#204A87" href="#joystick">joystick</a> axis.
+
+<b><i>speed (float, default: 20)</i></b>
+
+    Speed value sent to the servos.
+
+<b><i>acceleration (float, default: 50)</i></b>
+
+    Acceleration value sent to the servos.
+
+<b><i>deadband (float, default: 0.01)</i></b>
+
+    <a style="color:#204A87" href="#joystick">Joystick</a> deadband in the range 0-1.  This helps to prevent continual servo position changes being made if the <a style="color:#204A87" href="#joystick">joystick</a> moves by some small amount.
+</div>
+<div class="note" id="Servo Glimpse"><a name="servo glimpse"></a><h1>Servo Glimpse</h1>
+<b>Source File:</b> servo_glimpse.cpp
+
+This is a virtual device, which uses the Phidgets <a style="color:#204A87" href="#advanced servo controller">advanced servo controller</a> device to control pan and tilt axes and capture multiple views using a stereo camera or other ranging device.
+
+
+<b><span style="font-size:large">Launch Parameters</span></b>
+
+<b><i>topic_path (str, default: "phidgets/")
+
+</i></b>    This sets the topic path for Phidgets device topics.
+
+<b><i>glimpsecommand (str, default: "")</i></b>
+
+    The command to be run at each pan/tilt position.
+
+<b><i>finalcommand (str, default: "")</i></b>
+
+    A final command to be run after all pan/tilt positions have been visited.
+
+<b><i>glimpsecommans2 (str, default: "")</i></b>
+
+    An optional secondary command to be run at each pan/tilt position.
+
+<b><i>finalcommand2 (str, default: "")</i></b>
+
+    An optional secondary final command to be run after all pan/tilt positions have been visited.
+
+<b><i>outputdirectory (str, default: "")</i></b>
+
+    A directory where output files or images will be saved.
+
+<b><i>forward (int, default: 0)</i></b>
+
+    Foward position of the ranging device from the centre of the pan axis.  Typically this is in millimetres.
+
+<b><i>vertical (int, default: 0)</i></b>
+
+    Vertical position of the ranging device from the centre of the pan axis.  Typically this is in millimetres.
+
+<b><i>baseline (int, default: 120)</i></b>
+
+    If a stereo camera is being used this value gives the baseline distance in millimetres.
+
+<b><i>speed (float, default: 20)</i></b>
+
+    Speed value sent to the servo controller.
+
+<b><i>acceleration (float, default: 50)</i></b>
+
+    Acceleration value sent to the servo controller
+
+<b><i>servo0pos0 (float)</i></b>
+
+    Calibration starting pan position in servo coordinates.
+
+<b><i>servo0angle0 (float)</i></b>
+
+    Calibration starting pan angle in degrees.
+
+<b><i>servo0pos1 (float)</i></b>
+
+    Calibration ending pan position in servo coordinates.
+
+<b><i>servo0angle1 (float)</i></b>
+
+    Calibration ending pan angle in degrees.
+
+<b><i>servo1pos0 (float)</i></b>
+
+    Calibration starting tilt position in servo coordinates.
+
+<b><i>servo1angle0 (float)</i></b>
+
+    Calibration starting tilt angle in degrees.
+
+<b><i>servo1pos1 (float)</i></b>
+
+    Calibration ending tilt position in servo coordinates.
+
+<b><i>servo1angle1 (float)</i></b>
+
+    Calibration ending tilt angle in degrees.
+
+<b><i>servoindex0 (int, default: 0)</i></b>
+
+    Index number of the pan axis servo.
+
+<b><i>servoindex1 (int, default: 1)</i></b>
+
+    Index number of the tilt axis servo.
+
+<b><i>minpanangle (float)</i></b>
+
+    The starting pan angle for the glimpse in degrees.
+
+<b><i>maxpanangle (float)</i></b>
+
+    The ending pan angle for the glimpse in degrees.
+
+<b><i>mintiltangle (float)</i></b>
+
+    The starting tilt angle for the glimpse in degrees.
+
+<b><i>maxtiltangle (float)</i></b>
+
+    The ending tilt angle for the glimpse in degrees.
+
+<b><i>pansteps (int, default: 3)</i></b>
+
+    The number of pan steps to take between the minimum and maximum pan angles.
+
+<b><i>tiltsteps (int, default: 3)</i></b> 
+
+    The number of tilt steps to take between the minimum and maximum tilt angles.
+
+<b><i>glimpsetime (int, default: 2)</i></b>
+
+    The time to dwell at each pan/tilt position in seconds.
+
+<b><i>servoreference (str, default: "servo_reference")</i></b>
+
+    Service used by the <a style="color:#204A87" href="#advanced servo controller">advanced servo controller</a> to set servo positions.
+
+<b><i>servocontrollername (str, default: "servos")</i></b>
+
+    Topic published by the <a style="color:#204A87" href="#advanced servo controller">advanced servo controller</a>.
+
+<b><span style="font-size:large">Example launch file</span></b>
+
+&lt;!--
+  Launcher for servo glimpse
+  This requires:
+      Phidgets <a style="color:#204A87" href="#advanced servo controller">advanced servo controller</a>
+      Pan servo connected to servo 0
+      Tilt servo connected to servo 1
+      v4l2stereo and pcloud utilities installed
+      Stereo camera
+  --&gt;
+&lt;launch&gt;
+    &lt;!-- Machine settings. See <a style="color:#3465A4" href="http://www.ros.org/wiki/roslaunch/XML/machine">http://www.ros.org/wiki/roslaunch/XML/machine</a> --&gt;
+    &lt;machine name="local_alt" address="localhost" default="true" /&gt;
+    &lt;!-- phidgets <a style="color:#204A87" href="#advanced servo controller">advanced servo controller</a> --&gt;
+    &lt;node pkg="phidgets" type="advanced_servo" name="advanced_servo" respawn="true"&gt;
+        &lt;!-- phidget device serial number --&gt;
+        &lt;param name="serial_number" value="-1" /&gt;
+    &lt;/node&gt;
+    &lt;!-- glimpse --&gt;
+    &lt;node pkg="phidgets" type="servo_glimpse" name="servo_glimpse" respawn="false" output="screen"&gt;
+        &lt;!--  --&gt;
+        &lt;param name="enable" value="true" /&gt;
+        &lt;!-- Speed of movement --&gt;
+        &lt;param name="speed" value="80" /&gt;
+        &lt;!-- Acceleration of movement --&gt;
+        &lt;param name="acceleration" value="80" /&gt;
+        &lt;!-- Deadband --&gt;
+        &lt;param name="deadband" value="0.1" /&gt;
+        &lt;!-- Pan servo index --&gt;
+        &lt;param name="servoindex0" value="0" /&gt;
+        &lt;!-- Tilt servo index --&gt;
+        &lt;param name="servoindex1" value="1" /&gt;
+
+        &lt;!-- Pan servo position 0 --&gt;
+        &lt;param name="servo0pos0" value="180" /&gt;
+        &lt;!-- Pan servo angle 0 (degrees) --&gt;
+        &lt;param name="servo0angle0" value="-50" /&gt;
+        &lt;!-- Pan servo position 1 --&gt;
+        &lt;param name="servo0pos1" value="74" /&gt;
+        &lt;!-- Pan servo angle 1 (degrees) --&gt;
+        &lt;param name="servo0angle1" value="50" /&gt;
+
+        &lt;!-- Tilt servo position 0 --&gt;
+        &lt;param name="servo1pos0" value="127" /&gt;
+        &lt;!-- Tilt servo angle 0 (degrees) --&gt;
+        &lt;param name="servo1angle0" value="0" /&gt;
+        &lt;!-- Tilt servo position 1 --&gt;
+        &lt;param name="servo1pos1" value="180" /&gt;
+        &lt;!-- Tilt servo angle 1 (degrees) --&gt;
+        &lt;param name="servo1angle1" value="35" /&gt;
+
+        &lt;!-- Tilt servo rear camera position 0 --&gt;
+        &lt;param name="servo2pos0" value="127" /&gt;
+        &lt;!-- Tilt servo rear camera angle 0 (degrees) --&gt;
+        &lt;param name="servo2angle0" value="0" /&gt;
+        &lt;!-- Tilt servo rear camera position 1 --&gt;
+        &lt;param name="servo2pos1" value="180" /&gt;
+        &lt;!-- Tilt servo rear camera angle 1 (degrees) --&gt;
+        &lt;param name="servo2angle1" value="35" /&gt;
+
+        &lt;!-- Minimum pan angle (degrees) --&gt;
+        &lt;param name="minpanangle" value="-45" /&gt;
+        &lt;!-- Maximum pan angle (degrees) --&gt;
+        &lt;param name="maxpanangle" value="45" /&gt;
+
+        &lt;!-- Minimum tilt angle (degrees) --&gt;
+        &lt;param name="mintiltangle" value="0" /&gt;
+        &lt;!-- Maximum tilt angle (degrees) --&gt;
+        &lt;param name="maxtiltangle" value="35" /&gt;
+
+        &lt;!-- Pan Steps --&gt;
+        &lt;param name="pansteps" value="3" /&gt;
+        &lt;!-- Tilt Steps --&gt;
+        &lt;param name="tiltsteps" value="2" /&gt;
+
+        &lt;!-- Forward translation of the camera relative to the pan servo centre in millimetres --&gt;
+        &lt;param name="forward" value="90" /&gt;
+
+        &lt;!-- vertical translation of the camera relative to the pan servo centre in millimetres --&gt;
+        &lt;param name="vertical" value="0" /&gt;
+
+        &lt;!-- Glimpse time in seconds --&gt;
+        &lt;param name="glimpsetime" value="3" /&gt;
+
+        &lt;!-- Directory to save files to --&gt;
+        &lt;param name="outputdirectory" value="/home/motters/develop/phidgets/glimpse/" /&gt;
+        &lt;!-- Command to run for each position --&gt;
+        &lt;param name="glimpsecommand" value="v4l2stereo --dev0 <a style="color:#3465A4" href="/dev/video2">/dev/video2</a> --dev1 <a style="color:#3465A4" href="/dev/video1">/dev/video1</a> --flipleft --vcamera --equal --calibrationfile <a style="color:#3465A4" href="/home/motters/develop/libv4l2cam/v4l2stereo/calibration.">/home/motters/develop/libv4l2cam/v4l2stereo/calibration.</a> --poserotation '%d %d 0' --posetranslation '%d %d %d' --pointcloud %sgl%d.dat" /&gt;
+        &lt;!-- If there is a second rearward pointing camera this command will be run for each position --&gt;
+        &lt;param name="glimpsecommand2" value="" /&gt;
+        &lt;!-- Command to run after all glimpses --&gt;
+        &lt;param name="finalcommand" value="pcloud -f %s --savex3d %sglimpse.x3d" /&gt;
+        &lt;!-- If there is a second rearward pointing camera this command will be run after all glimpses --&gt;
+        &lt;param name="finalcommand2" value="" /&gt;
+
+    &lt;/node&gt;
+&lt;/launch&gt;
+</div>
+<div class="note" id="accelerometer_params"><a name="accelerometer_params"></a><h1>accelerometer_params</h1>
+<b><i>Header header</i></b>
+
+    Message header
+
+<b><i>float64[] acceleration</i></b>
+
+    Acceleration value for each axis of motion.
+
+<b><i>float64[] orientation</i></b>
+
+    Tilt and toll angles in degrees.
+
+<b><i>time[] stamp</i></b>
+
+    Timestamp for the last measurement taken for each axis of motion.</div>
+<div class="note" id="encoder_params"><a name="encoder_params"></a><h1>encoder_params</h1>
+<b><i>Header header</i></b>
+
+    Message header.
+
+<b><i>int32 index</i></b>
+
+    Index number of the encoder.
+
+<b><i>int32 count</i></b>
+
+    Returned count from the encoder.
+
+<b><i>int32 count_change</i></b>
+
+    Change in encoder count between this and the previous value.
+
+<b><i>int32 time</i></b>
+
+    Time when the encoder count was taken.</div>
+<div class="note" id="interface_kit_params"><a name="interface_kit_params"></a><h1>interface_kit_params</h1>
+Header header
+int32 index
+int32 value_type
+int32 value</div>
+<div class="note" id="ir_params"><a name="ir_params"></a><h1>ir_params</h1>
+Header header
+int32[] code
+int32[] data
+byte bitcount
+int32[] head
+int32[] zero
+int32[] one
+int32 trail
+int32 gap
+int32[] repeat
+int32 duty_cycle
+int32 carrier_frequency</div>
+<div class="note" id="joystick_params"><a name="joystick_params"></a><h1>joystick_params</h1>
+<b><i>Header header</i></b>
+
+    Message header.
+
+<b><i>float32[] axes</i></b>
+
+    Positions of the horizontal and vertical <a style="color:#204A87" href="#joystick">joystick</a> axes in the range -1 to 1.
+
+<b><i>int32[] buttons</i></b>
+
+    States of <a style="color:#204A87" href="#joystick">joystick</a> buttons (0 or 1).</div>
+<div class="note" id="led_params"><a name="led_params"></a><h1>led_params</h1>
+Header header
+
+    Message header.
+
+byte[] brightness
+
+    Brightness value for each <a style="color:#204A87" href="#led">LED</a>, in the range 0-100.</div>
+<div class="note" id="motor_params"><a name="motor_params"></a><h1>motor_params</h1>
+<b><i>Header header</i></b>
+
+    Message header.
+
+<b><i>int32 index</i></b>
+
+    Index number of the motor (0 or 1).
+
+<b><i>int32 value_type</i></b>
+
+    Type of value.
+    1 = Motor inputs
+    2 = Velocity
+    3 = Current
+
+<b><i>float32 value</i></b>
+
+    Value returned.
+</div>
+<div class="note" id="phsensor_params"><a name="phsensor_params"></a><h1>phsensor_params</h1>
+<b><i>Header header</i></b>
+
+    Message header.
+
+<b><i>float32 value</i></b>
+
+    Returned PH value.
+
+<b><i>float32 potential</i></b>
+
+    Returned potential value.</div>
+<div class="note" id="rfid_params"><a name="rfid_params"></a><h1>rfid_params</h1>
+<b><i>Header header</i></b>
+
+    Message header.
+
+<b><i>bool gained</i></b>
+
+    Whether the <a style="color:#204A87" href="#rfid">RFID</a> has been gained (read) or lost.
+
+<b><i>string tag</i></b>
+
+    The returned <a style="color:#204A87" href="#rfid">RFID</a> tag.</div>
+<div class="note" id="servo_params"><a name="servo_params"></a><h1>servo_params</h1>
+<b><i>Header header</i></b>
+
+    Message header.
+
+<b><i>int32 index</i></b>
+
+    Index number of the servo.
+
+<b><i>bool engage</i></b>
+
+    Whether the servo is engaged/energised.
+
+<b><i>float32 position</i></b>
+
+    Returned position of the servo.
+
+<b><i>float32 speed</i></b>
+
+    Returned speed of the servo.
+
+<b><i>float32 acceleration</i></b>
+
+    Returned acceleration of the servo.</div>
+<div class="note" id="spatial_params"><a name="spatial_params"></a><h1>spatial_params</h1>
+<b><i>Header header</i></b>
+
+    Message header
+
+<b><i>float64[] acceleration</i></b>
+
+    Returned linear acceleration values for each axis of motion.
+
+<b><i>float64[] orientation</i></b>
+
+    Tilt and roll angle in degrees.
+
+<b><i>float64[] angular</i></b>
+
+    Returned angular position values for each axis of motion in degrees.
+
+<b><i>float64[] magnetic</i></b>
+
+    Returned magnetic (compass) parameters.
+
+<b><i>float64[] timestamp</i></b>
+
+    Timestamp value for each measurement in seconds.</div>
+<div class="note" id="stepper_params"><a name="stepper_params"></a><h1>stepper_params</h1>
+Header header
+
+    Message header.
+
+int32 index
+
+    Index number of the motor.
+
+int64 position
+
+    Position in steps.</div>
+<div class="note" id="textlcd_params"><a name="textlcd_params"></a><h1>textlcd_params</h1>
+<b><i>Header header</i></b>
+
+    Message header.
+
+<b><i>string[] row</i></b>
+
+    Two rows of text to be displayed.
+
+<b><i>byte contrast</i></b>
+
+    Sets the contrast.
+
+<b><i>bool cursor</i></b>
+
+    Enables the cursor.
+
+<b><i>bool blink</i></b>
+
+    Enables cursor blinking.</div></body></html>

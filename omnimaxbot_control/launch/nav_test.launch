@@ -9,7 +9,11 @@
   <include file="$(find ax2550)/launch/ax2550.launch"/>
   
   <!-- Launch joystick control -->
-  <include file="$(find omnimaxbot_teleop)/launch/teleop.launch"/>
+  <include file="$(find omnimaxbot_teleop)/launch/teleop.launch">
+    <arg name="x_drive_scale" default="0.5"/>
+    <arg name="y_drive_scale" default="0.0"/>
+    <arg name="turn_scale" default="0.5"/>
+  </include>
   
   <!-- Connect to IMU through Arduino -->
   <node machine="omnimaxbot" pkg="rosserial_python" type="serial_node.py" name="ros_arduino_imu" output="screen" respawn="true">
@@ -39,7 +43,7 @@
   <node machine="omnimaxbot" pkg="omnimaxbot_control" type="laser_scan_odom_node" name="laser_scan_odom_node"/>
 
   <!-- Load the map -->	
-  <node machine="omnimaxbot" pkg="map_server" type="map_server" name="map_server" args="/home/nick/my_map.yaml"/>
+  <node pkg="map_server" type="map_server" name="map_server" args="/home/nick/UA1460_hector_512.yaml"/>
   
   <!-- Launch AMCL -->
   <include file="$(find omnimaxbot_2d_nav)/launch/amcl.launch"/>
@@ -52,8 +56,10 @@
     <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/global_costmap_params.yaml" command="load"/>
     <!-- <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/base_local_planner_params.yaml" command="load"/> -->
     <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/dwa_local_planner_params.yaml" command="load"/>
-    <remap from="/cmd_vel" to="/omni_cmd_vel" />
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/global_planner_params.yaml" command="load"/>
+    <remap from="/cmd_vel" to="/omni_cmd_vel"/>
     <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
+    <param name="base_global_planner" value="global_planner/GlobalPlanner"/>
   </node>
 
   <!-- Launch rviz -->

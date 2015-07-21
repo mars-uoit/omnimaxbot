@@ -1,0 +1,5 @@
+KERNEL=="video[0-9]*", ATTRS{serial}=="A1CDE628", SYMLINK+="video-front-left"
+KERNEL=="video[0-9]*", ATTRS{serial}=="70CDEF10", SYMLINK+="video-front-right"
+KERNEL=="video[0-9]*", ATTRS{serial}=="208AEF19", SYMLINK+="video-rear-left"
+KERNEL=="video[0-9]*", ATTRS{serial}=="E929E62D", SYMLINK+="video-rear-right"
+

@@ -1,0 +1,49 @@
+<!--
+  Launcher for LIDAR
+  This requires:
+      Phidgets advanced servo controller
+      Phidgets 8/8/8 interface kit
+      IR Sensors connected to the interface kit
+      Pan servo connected to servo 0
+      Tilt servo connected to servo 1
+  -->
+<launch>
+    <!-- Machine settings. See http://www.ros.org/wiki/roslaunch/XML/machine -->
+    <machine name="local_alt" address="localhost" default="true" />
+    <!-- phidgets advanced servo controller -->
+    <node pkg="phidgets" type="advanced_servo" name="advanced_servo" respawn="true" output="screen">
+        <!-- phidget device serial number -->
+        <param name="serial" value="-1" />
+    </node>
+    <!-- phidgets 8/8/8 interface kit -->
+    <node pkg="phidgets" type="interface_kit" name="interface_kit" respawn="true">
+        <!-- phidget device serial number -->
+        <param name="serial" value="-1" />
+    </node>
+    <!-- LIDAR -->
+    <node pkg="phidgets" type="lidar" name="lidar" respawn="true" output="screen">
+        <!-- pan servo index -->
+        <param name="panservo" value="0" />
+        <!-- pan servo index -->
+        <param name="tiltservo" value="1" />
+        <!-- start index of the sensor on the 8/8/8 interface kit -->
+        <param name="sensor" value="3" />
+        <!-- type of range sensors -->
+        <param name="sensortype" value="0" />
+        <!-- number of IR range sensors -->
+        <param name="sensors" value="4" />
+        <!-- leftmost position in servo coordinates -->
+        <param name="left" value="100" />
+        <!-- rightmost position in servo coordinates -->
+        <param name="right" value="160" />
+        <!-- leftmost position in degrees -->
+        <param name="leftdegrees" value="-45" />
+        <!-- rightmost position in degrees -->
+        <param name="rightdegrees" value="45" />
+        <!-- cycle time in seconds -->
+        <param name="cycletime" value="3" />
+        <!-- speed of movement of the servos -->
+        <param name="speed" value="30" />
+    </node>
+</launch>
+

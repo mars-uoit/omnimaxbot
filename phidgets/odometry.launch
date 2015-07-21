@@ -1,0 +1,36 @@
+<!--
+  Launcher for differential drive wheel odometry.
+  Change the encoder serial numbers as needed.  The serial numbers can be viewed by running:
+      rosrun phidgets manager
+  This requires:
+      2 x Phidgets high speed encoder
+      A known number of encoder counts per millimetre of travel for each wheel
+  -->
+<launch>
+    <!-- Machine settings. See http://www.ros.org/wiki/roslaunch/XML/machine -->
+    <machine name="local_alt" address="localhost" default="true" />
+    <!-- phidgets high speed encoders -->
+    <node pkg="phidgets" type="high_speed_encoder" name="encoder_left" respawn="true">
+        <!-- phidget device serial number for the left encoder -->
+        <param name="serial" value="52980" />
+    </node>
+    <node pkg="phidgets" type="high_speed_encoder" name="encoder_right" respawn="true">
+        <!-- phidget device serial number for the right encoder -->
+        <param name="serial" value="54104" />
+    </node>
+    <!-- odometry -->
+    <node pkg="phidgets" type="odometry" name="odometry" respawn="true" output="screen">
+        <!-- phidget device serial numbers for the left and right encoders -->
+        <param name="serialleft" value="52980" />
+        <param name="serialright" value="54104" />
+        <!-- separation between the two wheels in millimetres -->
+        <param name="wheelbase" value="400" />
+        <!-- number of encoder counts per millimetre for the left wheel -->
+        <param name="countspermmleft" value="100" />
+        <!-- number of encoder counts per millimetre for the right wheel -->
+        <param name="countspermmright" value="100" />
+        <!-- whether to show additional info -->
+        <param name="verbose" value="true" />
+    </node>
+</launch>
+

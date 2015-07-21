@@ -3,29 +3,28 @@
 #include <actionlib/client/simple_action_client.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/Vector3Stamped.h>
+#include <tf/transform_datatypes.h>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
-ros::Publisher initialpose_pub;
 MoveBaseClient ac;
 
 float x_dist;
+float y_dist;
 float z_dist;
 
-int move()
+//Takes an x position, y position, and orientation and sends it to move_base. These must be in the map frame
+int move(double xGoal, double yGoal, double thetaGoal)
 {
   move_base_msgs::MoveBaseGoal goal;
 
   //send the goal to the robot (NEED TO CHECK LOCATIONS FOR NEW MAP)
   goal.target_pose.header.frame_id = "/map";
   goal.target_pose.header.stamp = ros::Time::now();
-  goal.target_pose.pose.position.x = 3.9596981839;
-  goal.target_pose.pose.position.y = -0.532147080529;
+  goal.target_pose.pose.position.x = xGoal;
+  goal.target_pose.pose.position.y = yGoal;
   goal.target_pose.pose.position.z = 0.0;
-  goal.target_pose.pose.orientation.x = 0.0;
-  goal.target_pose.pose.orientation.y = 0.0;
-  goal.target_pose.pose.orientation.z = 0.00763461178259;
-  goal.target_pose.pose.orientation.w = 0.999970855927;
+  goal.target_pose.pose.orientation = tf::createQuaternionFromRPY(0.0, 0.0, thetaGoal)
 
   ROS_INFO("Sending goal");
   ac.sendGoal(goal);
@@ -40,21 +39,35 @@ int move()
   return 0;
 } 
 
-int approach_x()
+\\lines the forks up with the can
+int line_up_x()
+{
+  bool isLinedUp = false;
+
+  while (isLinedUp == false)
+  {
+    double error = 
+  }
+
+  return 0;
+} 
+
+int approach()
 {
 
   return 0;
 } 
 
-int approach_y()
+int lift()
 {
 
   return 0;
-} 
+}
 
-void arsys_callback(const geometry_msgs::Vecto3Stamped::ConstPtr& msg)
+void arsys_callback(const geometry_msgs::Vector3Stamped::ConstPtr& msg)
 {
   x_dist = msg->vector.x;
+  y_dist = msg->vector.y;
   z_dist = msg->vector.z;
 }
 
@@ -77,15 +90,7 @@ int main(int argc, char** argv)
     ROS_INFO("Waiting for the move_base action server to come up");
   }
   
-  move();
-  
-  ros::SpinOnce();
-  
-  approach_x();
-  
-  ros::spinOnce();
-  
-  approach_y();
+
   
   return 0;
 }

@@ -36,7 +36,8 @@
 #include <sstream>
 #include <phidget21.h>
 #include <geometry_msgs/Twist.h>
-#include <std_msgs/Int32.h>
+#include <std_msgs/Float32.h>
+#include <std_msgs/Bool.h>
 #include <nav_msgs/Odometry.h>
 #include "phidgets/motor_params.h"
 #include "phidgets/encoder_params.h"
@@ -50,6 +51,9 @@ ros::Publisher motors_pub;
 // encoder count publisher
 ros::Publisher encoder_pub;
 
+// goal flag publisher
+ros::Publisher goal_pub;
+
 float acceleration = 20;
 float speed = 62.5;
 bool x_forward = true;
@@ -57,8 +61,7 @@ bool invert_rotation = false;
 bool invert_forward = false;
 double rotation_offset = 0;
 
-double error = 0;
-double error_last = 0;
+double errorLast = 0;
 double integral = 0;
 double derivative = 0; 
 double Kp = 0.8;
@@ -67,7 +70,7 @@ double Kd = 0.1;
 double deadband = 0.02;
 
 int position = 0;
-int target_position = 0;
+int targetPosition = 0;
 
 bool odometry_active = false;
 
@@ -89,25 +92,45 @@ void start_motors(double duty_cycle)
   motors_active = true;
 }
 
-void PID(int dt, int actual_position)
+void PID(int dt, int actualPosition)
 {
-  error = target_position - actual_position;
+  std_msgs::Bool goalReached = false;
+  error = targetPosition - actualPosition;
   double duty_cycle = (Kp * error) + (Ki * integral) + (Kd * derivative);
  
   if (duty_cycle > 100)
+  {
     duty_cycle = 100;
+  }
   else if (duty_cycle < -100)
+  {
     duty_cycle = -100;
+  }
   else
+  {
     integral += (error * dt);
+  }
  
   derivative = (error - error_last)/dt;
   error_last = error;
 
-  if (duty_cycle == 0 || error == 0)
+  if (duty_cycle == 0)
+  {
     stop_motors();
+  }
+  else if (error == 0)
+  {
+    stop motors();
+    integral = 0;
+    derivitive = 0;
+    goalReached = true;
+  }
   else
+  {
     start_motors(duty_cycle);
+  }
+
+  goal_pub.publish(goalReached);
 }
 
 int AttachHandler(CPhidgetHandle phid, void *userptr)
@@ -288,9 +311,23 @@ void positionCommandCallback(const geometry_msgs::Twist::ConstPtr& msg)
 }
 */
 
-void positionCommandCallback(const std_msgs::Int32::ConstPtr& msg)
+void positionCommandCallback(const std_msgs::Float32::ConstPtr& msg)
 {
-  target_position = msg->data;
+  double rawPosition = msg->data; //take in the change in height required in m
+  double conv = 39.3700787; //inchs per metre
+  double gear_ratio = 13.0;
+  double TPI = 10.0; //threads per inch
+  double cpr = 300.0; //from encoder
+
+  double unroundedGoal = rawPosition * conv * gear_ratio * TPI * cpr;
+  int hold = (int)unroundedGoal;
+
+  if(unroundedGoal > 0 && unroundedGoal - hold > 0.5)
+    hold += 1;
+  else if (unroundedGoal < 0 && unroundedGoal - hold < -0.5)
+    hold -= 1;
+
+  targetPosition = hold;
 }
 
 int main(int argc, char* argv[])
@@ -339,10 +376,13 @@ int main(int argc, char* argv[])
     motors_pub = n.advertise<phidgets::motor_params>(topic_name, buffer_length);
 
     // receive position commands
-    ros::Subscriber position_sub = n.subscribe("fork_pose", 1, positionCommandCallback);
+    ros::Subscriber position_sub = n.subscribe("fork_position", 1, positionCommandCallback);
     
     // publish encoder counts
     encoder_pub = n.advertise<phidgets::encoder_params>("fork_encoder", 5);
+
+    // publish encoder counts
+    goal_pub = n.advertise<std_msgs::Bool>("fork_goal_reached", 1);
 
     ros::Time last_command = ros::Time::now();
 

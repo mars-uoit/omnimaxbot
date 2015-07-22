@@ -10,7 +10,7 @@
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
-MoveBaseClient ac;
+MoveBaseClient ac("move_base", true);
 
 //fork height publisher
 ros::Publisher fork_pub;
@@ -19,9 +19,9 @@ ros::Publisher fork_pub;
 ros::Publisher vel_pub;
 
 //global variables to hold can position
-float x_dist;
-float y_dist;
-float z_dist;
+float xDist;
+float yDist;
+float zDist;
 
 //global variable for callback
 bool metGoal = false;
@@ -31,13 +31,13 @@ int move(double xGoal, double yGoal, double thetaGoal)
 {
   move_base_msgs::MoveBaseGoal goal;
 
-  //send the goal to the robot (NEED TO CHECK LOCATIONS FOR NEW MAP)
+  //send the goal to the robot
   goal.target_pose.header.frame_id = "/map";
   goal.target_pose.header.stamp = ros::Time::now();
   goal.target_pose.pose.position.x = xGoal;
   goal.target_pose.pose.position.y = yGoal;
   goal.target_pose.pose.position.z = 0.0;
-  goal.target_pose.pose.orientation = tf::createQuaternionFromRPY(0.0, 0.0, thetaGoal)
+  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(thetaGoal);
 
   ROS_INFO("Sending goal");
   ac.sendGoal(goal);
@@ -52,11 +52,11 @@ int move(double xGoal, double yGoal, double thetaGoal)
   return 0;
 } 
 
-\\lines the forks up with the can
+//lines the forks up with the can
 int line_up_x()
 {
   bool isLinedUp = false;
-  goal = ; //WROTE THIS DOWN ON A SMALL PIECE OF PAPER ON MY DESK!!!!!
+  double goal = 0.105; //found experimentally
   double error;
   double tolerance = 0.0025;
 
@@ -67,14 +67,14 @@ int line_up_x()
   vel.angular.y = 0.0;
   vel.angular.z = 0.0;
 
-  ros::Asyncspinner spinner(4);
-  spinner.start
+  ros::AsyncSpinner spinner(4);
+  spinner.start();
 
-  while (ros::0k() && isLinedUp == false)
+  while (ros::ok() && isLinedUp == false)
   {
     error = goal - xDist;
 
-    if ((error > 0 && error <= tolerance) || (error < 0 && error > -tolerance)
+    if ((error > 0 && error <= tolerance) || (error < 0 && error > -tolerance))
     {
       isLinedUp = true;
       vel.linear.x = 0.0;
@@ -85,9 +85,9 @@ int line_up_x()
     }
     else
     {
-      vel.linear.x = 0.25
+      vel.linear.x = 0.25;
     }
-    vel_pub(vel); 
+    vel_pub.publish(vel); 
   }
 
   spinner.stop();
@@ -108,14 +108,14 @@ int approach(double goal)
   vel.angular.y = 0.0;
   vel.angular.z = 0.0;
 
-  ros::Asyncspinner spinner(4);
-  spinner.start
+  ros::AsyncSpinner spinner(4);
+  spinner.start();
 
-  while (ros::0k() && isLinedUp == false)
+  while (ros::ok() && isClose == false)
   {
     error = goal - yDist;
 
-    if ((error > 0 && error <= tolerance) || (error < 0 && error > -tolerance)
+    if ((error > 0 && error <= tolerance) || (error < 0 && error > -tolerance))
     {
       isClose = true;
       vel.linear.y = 0.0;
@@ -126,9 +126,9 @@ int approach(double goal)
     }
     else
     {
-      vel.linear.y = 0.25
+      vel.linear.y = 0.25;
     }
-    vel_pub(vel);
+    vel_pub.publish(vel);
   }
 
   spinner.stop();
@@ -141,8 +141,10 @@ int approach(double goal)
 int lift(double dist)
 {
   bool isFirst = true;
+  double offset = 0.254;
+  double startHeight = 0.250825;
 
-  ros::Asyncspinner spinner(4);
+  ros::AsyncSpinner spinner(4);
   spinner.start();
 
   while (ros::ok() && metGoal == false)
@@ -152,7 +154,7 @@ int lift(double dist)
       ros::spinOnce();
       std_msgs::Float32 goal;
       goal.data = zDist + offset + dist - startHeight;
-      fork_pub.publish(goal)
+      fork_pub.publish(goal);
     }
   }
 
@@ -190,8 +192,11 @@ int main(int argc, char** argv)
   //setup fork goal publisher
   ros::Publisher fork_pub = n.advertise<std_msgs::Float32>("fork_position", 1);
 
+  //setup velocity publisher
+  ros::Publisher vel_pub = n.advertise<geometry_msgs::Twist>("omni_cmd_vel", 1);
+
   //tell the action client that we want to spin a thread by default
-  MoveBaseClient ac("move_base", true);
+  //MoveBaseClient ac("move_base", true);
 
   //wait for the action server to come up
   while(!ac.waitForServer(ros::Duration(5.0)))
@@ -200,21 +205,21 @@ int main(int argc, char** argv)
   }
   
   //move to pick up position (position found through teleoperation and amcl)
-  move(3.2904797043,-0.506466412138,0.0)
+  move(3.2904797043,-0.506466412138,0.0);
 
   line_up_x();
 
-  approach(0.15) //ACTUAL DISTANCE FOUND FROM AR_SYS ON DESK
+  approach(0.25); //found experimentally
 
-  lift(0.0508) //lift 2 inches
+  lift(0.0508); //lift 2 inches
 
-  move(x,y,t) //move to drop off location FIGURE THIS OUT EXPERIMENTALLY
+  move(1,1,3.14159/2); //move to drop off location FIGURE THIS OUT EXPERIMENTALLY
 
-  lift(-0.0508) //put back down
+  lift(-0.0508); //put back down
 
-  approach(-0.20) //reverse enough for the forks to clear the can
+  approach(-0.20); //reverse enough for the forks to clear the can
 
-  move(x,y,t) //move back to home
+  move(0,0,0); //move back to home
     
   return 0;
 }

@@ -95,6 +95,7 @@ void start_motors(double duty_cycle)
 void PID(int dt, int actualPosition)
 {
   std_msgs::Bool goalReached = false;
+  deadband = 3071; //2mm
   error = targetPosition - actualPosition;
   double duty_cycle = (Kp * error) + (Ki * integral) + (Kd * derivative);
  
@@ -118,7 +119,7 @@ void PID(int dt, int actualPosition)
   {
     stop_motors();
   }
-  else if (error == 0)
+  else if ((error > 0 && error <= deadband) || (error < 0 && error > -deadband)
   {
     stop motors();
     integral = 0;

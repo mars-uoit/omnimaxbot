@@ -3,8 +3,10 @@
 #include <actionlib/client/simple_action_client.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/Vector3Stamped.h>
+#include <geometry_msgs/Twist.h>
 #include <tf/transform_datatypes.h>
 #include <std_msgs/Float32.h>
+#include <std_msgs/Bool.h>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
@@ -14,7 +16,7 @@ MoveBaseClient ac;
 ros::Publisher fork_pub;
 
 //command velocity publisher
-ros::Publisher cmd_vel;
+ros::Publisher vel_pub;
 
 //global variables to hold can position
 float x_dist;
@@ -54,39 +56,105 @@ int move(double xGoal, double yGoal, double thetaGoal)
 int line_up_x()
 {
   bool isLinedUp = false;
+  goal = ; //WROTE THIS DOWN ON A SMALL PIECE OF PAPER ON MY DESK!!!!!
+  double error;
+  double tolerance = 0.0025;
 
-  ros::
+  geometry_msgs::Twist vel;
+  vel.linear.y = 0.0;
+  vel.linear.z = 0.0;
+  vel.angular.x = 0.0;
+  vel.angular.y = 0.0;
+  vel.angular.z = 0.0;
 
-  while (isLinedUp == false)
+  ros::Asyncspinner spinner(4);
+  spinner.start
+
+  while (ros::0k() && isLinedUp == false)
   {
-    double error = 
+    error = goal - xDist;
+
+    if ((error > 0 && error <= tolerance) || (error < 0 && error > -tolerance)
+    {
+      isLinedUp = true;
+      vel.linear.x = 0.0;
+    }
+    else if (error < 0)
+    {
+      vel.linear.x = 0.25;
+    }
+    else
+    {
+      vel.linear.x = 0.25
+    }
+    vel_pub(vel); 
   }
 
+  spinner.stop();
+
   return 0;
 } 
 
-int approach()
+int approach(double goal)
 {
+  bool isClose = false;
+  double error;
+  double tolerance = 0.025;
+
+  geometry_msgs::Twist vel;
+  vel.linear.x = 0.0;
+  vel.linear.z = 0.0;
+  vel.angular.x = 0.0;
+  vel.angular.y = 0.0;
+  vel.angular.z = 0.0;
+
+  ros::Asyncspinner spinner(4);
+  spinner.start
+
+  while (ros::0k() && isLinedUp == false)
+  {
+    error = goal - yDist;
+
+    if ((error > 0 && error <= tolerance) || (error < 0 && error > -tolerance)
+    {
+      isClose = true;
+      vel.linear.y = 0.0;
+    }
+    else if (error > 0)
+    {
+      vel.linear.y = 0.25;
+    }
+    else
+    {
+      vel.linear.y = 0.25
+    }
+    vel_pub(vel);
+  }
+
+  spinner.stop();
 
   return 0;
-} 
+}
+ 
 
 //tell forks to raise/lower by a certain amount, knowing the distance between the AR code and the flange
 int lift(double dist)
 {
   bool isFirst = true;
-  double 
 
   ros::Asyncspinner spinner(4);
   spinner.start();
 
-  while(ros::ok() && metGoal == false)
+  while (ros::ok() && metGoal == false)
   {
-    if(isFirst)
+    if (isFirst)
     {
-      std_msgs::Float32 goal.data = zDist + offset + dist - startHeight;   
-    }  
-  {
+      ros::spinOnce();
+      std_msgs::Float32 goal;
+      goal.data = zDist + offset + dist - startHeight;
+      fork_pub.publish(goal)
+    }
+  }
 
   spinner.stop();
 
@@ -136,7 +204,7 @@ int main(int argc, char** argv)
 
   line_up_x();
 
-  approach()
+  approach(0.15) //ACTUAL DISTANCE FOUND FROM AR_SYS ON DESK
 
   lift(0.0508) //lift 2 inches
 
@@ -144,7 +212,7 @@ int main(int argc, char** argv)
 
   lift(-0.0508) //put back down
 
-  approach() //the other way
+  approach(-0.20) //reverse enough for the forks to clear the can
 
   move(x,y,t) //move back to home
     

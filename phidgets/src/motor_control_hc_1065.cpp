@@ -67,7 +67,7 @@ double derivative = 0;
 double Kp = 0.8;
 double Ki = 0.5;
 double Kd = 0.1;
-double deadband = 0.02;
+int deadband = 3071;
 
 int position = 0;
 int targetPosition = 0;
@@ -94,9 +94,9 @@ void start_motors(double duty_cycle)
 
 void PID(int dt, int actualPosition)
 {
-  std_msgs::Bool goalReached = false;
-  deadband = 3071; //2mm
-  error = targetPosition - actualPosition;
+  std_msgs::Bool goalReached;
+  goalReached.data = false;
+  double error = targetPosition - actualPosition;
   double duty_cycle = (Kp * error) + (Ki * integral) + (Kd * derivative);
  
   if (duty_cycle > 100)
@@ -112,19 +112,19 @@ void PID(int dt, int actualPosition)
     integral += (error * dt);
   }
  
-  derivative = (error - error_last)/dt;
-  error_last = error;
+  derivative = (error - errorLast)/dt;
+  errorLast = error;
 
   if (duty_cycle == 0)
   {
     stop_motors();
   }
-  else if ((error > 0 && error <= deadband) || (error < 0 && error > -deadband)
+  else if ((error > 0 && error <= deadband) || (error < 0 && error > -deadband))
   {
-    stop motors();
+    stop_motors();
     integral = 0;
-    derivitive = 0;
-    goalReached = true;
+    derivative = 0;
+    goalReached.data = true;
   }
   else
   {

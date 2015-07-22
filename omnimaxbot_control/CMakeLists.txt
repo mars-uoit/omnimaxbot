@@ -107,7 +107,7 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(control_node src/control.cpp)
+add_executable(omnimaxbot_control_node src/integrated_sys.cpp)
 add_executable(laser_scan_odom_node src/odom.cpp)
 
 ## Add cmake target dependencies of the executable/library
@@ -115,7 +115,7 @@ add_executable(laser_scan_odom_node src/odom.cpp)
 # add_dependencies(omnimaxbot_control_node omnimaxbot_control_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(control_node ${catkin_LIBRARIES})
+target_link_libraries(omnimaxbot_control_node ${catkin_LIBRARIES})
 target_link_libraries(laser_scan_odom_node ${catkin_LIBRARIES})
 
 #############

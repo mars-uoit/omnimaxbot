@@ -2,7 +2,7 @@
 <package>
   <name>omnimaxbot_control</name>
   <version>0.0.1</version>
-  <description>This package performs the overall control for the OmniMaxBot.This includes setting the initial position on the map, selecting and setting goal positions, determining the raising/lowering of the forks, and other such necessities.</description>
+  <description>This package performs the overall control for the OmniMaxBot. This includes selecting and setting goal positions, determining the raising/lowering of the forks, and other such necessities.</description>
  
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
@@ -45,12 +45,14 @@
   <build_depend>roscpp</build_depend>
   <build_depend>geometry_msgs</build_depend>
   <build_depend>nav_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
   <build_depend>tf</build_depend>
   <run_depend>actionlib</run_depend>
   <run_depend>move_base_msgs</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>geometry_msgs</run_depend>
   <run_depend>nav_msgs</run_depend>
+  <run_depend>std_msgs</run_depend>
   <run_depend>tf_msgs</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->

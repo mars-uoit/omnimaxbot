@@ -54,12 +54,15 @@ ros::Publisher encoder_pub;
 // goal flag publisher
 ros::Publisher goal_pub;
 
+ros::Time last_command;
+
 float acceleration = 20;
 float speed = 62.5;
 bool x_forward = true;
 bool invert_rotation = false;
 bool invert_forward = false;
 double rotation_offset = 0;
+bool timedOut = false;
 
 double errorLast = 0;
 double integral = 0;
@@ -92,46 +95,58 @@ void start_motors(double duty_cycle)
   motors_active = true;
 }
 
-void PID(int dt, int actualPosition)
+void PID(int actualPosition)
 {
   std_msgs::Bool goalReached;
   goalReached.data = false;
-  double error = targetPosition - actualPosition;
-  double duty_cycle = (Kp * error) + (Ki * integral) + (Kd * derivative);
- 
-  if (duty_cycle > 100)
-  {
-    duty_cycle = 100;
-  }
-  else if (duty_cycle < -100)
-  {
-    duty_cycle = -100;
-  }
-  else
-  {
-    integral += (error * dt);
-  }
- 
-  derivative = (error - errorLast)/dt;
-  errorLast = error;
+  double dt = 0.008;
 
-  if (duty_cycle == 0)
+  if(timedOut == false)
   {
-    stop_motors();
-  }
-  else if ((error > 0 && error <= deadband) || (error < 0 && error > -deadband))
-  {
-    stop_motors();
-    integral = 0;
-    derivative = 0;
-    goalReached.data = true;
-  }
-  else
-  {
-    start_motors(duty_cycle);
-  }
+    double error = targetPosition - actualPosition;
+    double duty_cycle = (Kp * error) + (Ki * integral) + (Kd * derivative);
+ 
+    if (duty_cycle > 100)
+    {
+      duty_cycle = 100;
+    }
+    else if (duty_cycle < -100)
+    {
+      duty_cycle = -100;
+    }
+    else
+    {
+      integral += (error * dt);
+    }
+ 
+    derivative = (error - errorLast)/dt;
+ 
+    ROS_INFO_STREAM("error: " << error);
+    ROS_INFO_STREAM("integral: " << integral);
+    ROS_INFO_STREAM("derivative: " << derivative);
+    ROS_INFO_STREAM("errorLast: " << errorLast); 
 
-  goal_pub.publish(goalReached);
+    //derivative = (error - errorLast)/dt;
+    errorLast = error;
+
+    if (duty_cycle == 0)
+    {
+      stop_motors();
+    }
+    else if ((error > 0 && error <= deadband) || (error < 0 && error > -deadband))
+    {
+      stop_motors();
+      integral = 0;
+      derivative = 0;
+      goalReached.data = true;
+    }
+    else
+    {
+      start_motors(duty_cycle);
+    }
+    ROS_INFO_STREAM("duty_cycle: " << duty_cycle);
+    goal_pub.publish(goalReached);
+  }
 }
 
 int AttachHandler(CPhidgetHandle phid, void *userptr)
@@ -197,19 +212,21 @@ int CurrentChangeHandler(CPhidgetMotorControlHandle MC, void *usrptr, int Index,
   return 0;
 }
 
-int EncoderChangeHandler(CPhidgetMotorControlHandle MC, void *userPtr, int Index, int Time, int positionChange)
+int EncoderUpdateHandler(CPhidgetMotorControlHandle MC, void *userPtr, int Index, int positionChange)
 {
-  position += positionChange; 
+  position -= positionChange; 
+
+  ROS_INFO_STREAM("position: " << position);
 
   phidgets::encoder_params m;
   m.index = Index;
   m.count = position;
   m.count_change = positionChange;
-  m.time = Time;
+  m.time = 0.008;
 
   encoder_pub.publish(m);
 
-  PID(Time, position);
+  PID(position);
 
   return 0;
 }
@@ -270,7 +287,7 @@ bool attach(CPhidgetMotorControlHandle &phid, int serial_number)
   // Requires a handle for the Phidget, the function
   // that will be called, and an arbitrary pointer that
   // will be supplied to the callback function (may be NULL).
-  CPhidgetMotorControl_set_OnEncoderPositionChange_Handler (phid, EncoderChangeHandler, NULL);
+  CPhidgetMotorControl_set_OnEncoderPositionUpdate_Handler (phid, EncoderUpdateHandler, NULL);
 
   //open the device for connections
   CPhidget_open((CPhidgetHandle)phid, serial_number);
@@ -293,7 +310,11 @@ bool attach(CPhidgetMotorControlHandle &phid, int serial_number)
     ROS_ERROR("Problem waiting for motor attachment: %s", err);
     return false;
   }
-  else return true;
+  else
+  {
+    ROS_INFO("Motor attached");
+    return true;
+  }
 }
 
 /*!
@@ -314,6 +335,7 @@ void positionCommandCallback(const geometry_msgs::Twist::ConstPtr& msg)
 
 void positionCommandCallback(const std_msgs::Float32::ConstPtr& msg)
 {
+  last_command = ros::Time::now();
   double rawPosition = msg->data; //take in the change in height required in m
   double conv = 39.3700787; //inchs per metre
   double gear_ratio = 13.0;
@@ -323,12 +345,18 @@ void positionCommandCallback(const std_msgs::Float32::ConstPtr& msg)
   double unroundedGoal = rawPosition * conv * gear_ratio * TPI * cpr;
   int hold = (int)unroundedGoal;
 
+  ROS_INFO_STREAM("hold = " << hold);
+
   if(unroundedGoal > 0 && unroundedGoal - hold > 0.5)
     hold += 1;
   else if (unroundedGoal < 0 && unroundedGoal - hold < -0.5)
     hold -= 1;
+  else
+    hold = 0;
 
   targetPosition = hold;
+  timedOut = false;
+  ROS_INFO_STREAM("targetPosition = " << targetPosition);
 }
 
 int main(int argc, char* argv[])
@@ -350,7 +378,7 @@ int main(int argc, char* argv[])
 
   std::string topic_path = "phidgets/";
   nh.getParam("topic_path", topic_path);
-  int timeout_sec = 1;
+  int timeout_sec = 2;
   nh.getParam("timeout", timeout_sec);
   int v=0;
   nh.getParam("speed", v);
@@ -385,7 +413,7 @@ int main(int argc, char* argv[])
     // publish encoder counts
     goal_pub = n.advertise<std_msgs::Bool>("fork_goal_reached", 1);
 
-    ros::Time last_command = ros::Time::now();
+    last_command = ros::Time::now();
 
     initialised = true;
     ros::Rate loop_rate(frequency);
@@ -401,8 +429,9 @@ int main(int argc, char* argv[])
       double time_since_last_command_sec = (ros::Time::now() - last_command).toSec();
       if ((motors_active) && (time_since_last_command_sec > timeout_sec)) 
       {
-        stop_motors();        
-        ROS_WARN("No velocity command received - motors stopped");        
+        stop_motors();
+        ROS_WARN("No velocity command received - motors stopped");
+        timedOut = true;
       }
     }
 

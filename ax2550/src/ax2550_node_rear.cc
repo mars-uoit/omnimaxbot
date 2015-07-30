@@ -44,7 +44,7 @@ void controlLoop()
   try 
   {
     //SAFETY TIME OUT
-    //if a command is not received for 2 seconds the motors time out
+    //if a command is not received for 1 seconds the motors time out
     double time_past = (ros::Time::now() - time_last).toSec();
     if(time_past > timeout_sec)
     {
@@ -165,7 +165,7 @@ int main(int argc, char **argv)
   ros::Subscriber sub = n.subscribe("/omnimaxbot/rear/cmd_vel", 1, cmd_velCallback);
   
   // Spinner
-  ros::AsyncSpinner spinner(1);
+  ros::AsyncSpinner spinner(4);
   spinner.start();
 
   while(ros::ok()) 

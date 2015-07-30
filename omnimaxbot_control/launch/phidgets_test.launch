@@ -1,0 +1,16 @@
+<launch>
+
+  <machine name="omnimaxbot" address="omnimaxbot" env-loader="~/catkin_ws/src/omnimaxbot/omnimaxbot_control/ros_env.sh" user="marslab"/>
+  
+  <!-- Launch the front fork driver -->
+  <node machine="omnimaxbot" pkg="phidgets" type="motor_control_hc_1065" name="rear_fork_driver" respawn="true">
+    <param name="_serial" type="int" value="299104"/>
+  </node>
+
+  <!-- Launch the front fork driver -->
+  <node machine="omnimaxbot" pkg="phidgets" type="motor_control_hc_1065" name="front_fork_driver" respawn="true">
+    <param name="_serial" type="int" value="299103"/>
+  </node>
+
+</launch>
+

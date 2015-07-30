@@ -145,8 +145,8 @@ void PID(int actualPosition)
       start_motors(duty_cycle);
     }
     ROS_INFO_STREAM("duty_cycle: " << duty_cycle);
-    goal_pub.publish(goalReached);
   }
+  goal_pub.publish(goalReached);
 }
 
 int AttachHandler(CPhidgetHandle phid, void *userptr)
@@ -345,8 +345,6 @@ void positionCommandCallback(const std_msgs::Float32::ConstPtr& msg)
   double unroundedGoal = rawPosition * conv * gear_ratio * TPI * cpr;
   int hold = (int)unroundedGoal;
 
-  ROS_INFO_STREAM("hold = " << hold);
-
   if(unroundedGoal > 0 && unroundedGoal - hold > 0.5)
     hold += 1;
   else if (unroundedGoal < 0 && unroundedGoal - hold < -0.5)
@@ -368,8 +366,6 @@ int main(int argc, char* argv[])
   nh.getParam("serial", serial_number);
   std::string name = "motorcontrol";
   nh.getParam("name", name);
-  nh.getParam("x_forward", x_forward);
-  nh.getParam("rotation", rotation_offset);
 
   if (serial_number==-1) 
   {
@@ -381,8 +377,6 @@ int main(int argc, char* argv[])
   int timeout_sec = 2;
   nh.getParam("timeout", timeout_sec);
   int v=0;
-  nh.getParam("speed", v);
-  if (v>0) speed = v;
   int frequency = 30;
   nh.getParam("frequency", frequency);
 

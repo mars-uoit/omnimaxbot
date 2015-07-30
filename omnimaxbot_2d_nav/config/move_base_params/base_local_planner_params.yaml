@@ -2,27 +2,47 @@ controller_frequency: 20.0
 recovery_behaviour_enabled: true
 
 TrajectoryPlannerROS:
-  max_vel_x: 0.5
-  min_vel_x: 0.25
+  #Robot config parameters
+  acc_lim_x: 1.7
+  acc_lim_y: 1.7
+  acc_lim_th: 2.5
+  max_vel_x: 0.5 
+  min_vel_x: 0.15
   max_vel_theta: 1.0
   min_vel_theta: -1.0
-  min_in_place_vel_theta: 0.5
-  acc_lim_theta: 0.7
-  acc_lim_x: 1.0
-  acc_lim_y: 1.0
+  min_in_place_vel_theta: 0.2
   escape_vel: -0.25
-
   holonomic_robot: true
-  y_vels: [-0.5, -0.25, 0.25, 0.5]
-  yaw_goal_tolerance: 0.05
-  xy_goal_tolerance: 0.05
-  goal_distance_bias: 0.8
-  path_distance_bias: 0.6
-  sim_time: 1.5
-  heading_lookahead: 1.0
-  oscillation_reset_dist: 0.25
+  y_vels: [-0.5, -0.15, 0.15, 0.5]
 
-  vx_samples: 6
-  vtheta_samples: 20
+  #Goal tolerance parameters
+  yaw_goal_tolerance: 0.05
+  xy_goal_tolerance: 0.05 
+  latch_xy_goal_tolerance: false
+
+  #forward simulation parameters
+  sim_time: 1.7 
+  sim_granularity: 0.025
+  angular_sim_granularity: 0.025
+  vx_samples: 10
+  vtheta_samples: 20 
+  controller_frequency: 20.0
+
+  #trajectory scoring parameters
+  meter_scoring: false
+  pdist_scale: 0.6
+  gdist_scale: 0.8 
+  occdist_scale: 0.01
+  heading_lookahead: 0.325
+  heading_scoring: false
+  heading_scoring_timestep: 0.8
   dwa: false
+  publish_cost_grid_pc: false
+  global_frame_id: /odom
+
+  #Oscillation prevention parameters
+  oscillation_reset_dist: 0.05
+
+  #Global plan parameters
+  prune_plan: true
 

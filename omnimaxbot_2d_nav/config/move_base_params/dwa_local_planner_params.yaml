@@ -13,7 +13,7 @@ DWAPlannerROS:
   min_rot_vel: 0.2
 
   #Goal tolerance parameters
-  yaw_goal_tolerance: 0.5
+  yaw_goal_tolerance: 0.05
   xy_goal_tolerance: 0.05 
   latch_xy_goal_tolerance: false
 

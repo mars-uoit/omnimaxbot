@@ -121,10 +121,10 @@ void PID(int actualPosition)
  
     derivative = (error - errorLast)/dt;
  
-    ROS_INFO_STREAM("error: " << error);
-    ROS_INFO_STREAM("integral: " << integral);
-    ROS_INFO_STREAM("derivative: " << derivative);
-    ROS_INFO_STREAM("errorLast: " << errorLast); 
+    //ROS_INFO_STREAM("error: " << error);
+    //ROS_INFO_STREAM("integral: " << integral);
+    //ROS_INFO_STREAM("derivative: " << derivative);
+    //ROS_INFO_STREAM("errorLast: " << errorLast); 
 
     //derivative = (error - errorLast)/dt;
     errorLast = error;

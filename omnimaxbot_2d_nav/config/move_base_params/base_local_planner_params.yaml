@@ -1,6 +1,3 @@
-controller_frequency: 20.0
-recovery_behaviour_enabled: true
-
 TrajectoryPlannerROS:
   #Robot config parameters
   acc_lim_x: 1.7

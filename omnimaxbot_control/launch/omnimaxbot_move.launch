@@ -91,10 +91,10 @@
   </node>
 
   <!-- launch image_view -->
-  <node pkg="image_view" type="image_view" name="image_view" output="screen">
-    <remap from="image" to="/ar_single_board/result" /> 
-    <param name="autosize" type="bool" value="true" /> 
-  </node>
+  <!-- <node pkg="image_view" type="image_view" name="image_view" output="screen"> -->
+  <!--   <remap from="image" to="/ar_single_board/result" />  -->
+  <!--   <param name="autosize" type="bool" value="true" />  -->
+  <!-- </node> -->
 
   <!-- Load the map -->	
   <node machine="omnimaxbot" pkg="map_server" type="map_server" name="map_server" args="/home/marslab/catkin_ws/src/omnimaxbot/omnimaxbot_2d_nav/maps/UA1460_hector_512.yaml"/>
@@ -130,6 +130,8 @@
   <!--   <param name="_serial" type="int" value="299104"/> -->
   <!-- </node> -->
 
-  <node pkg="omnimaxbot_control" type="omnimaxbot_control_node" name="approach_test" output="screen"/>
+  <node pkg="omnimaxbot_control" type="move_test_node" name="move_test" output="screen"/>
+
+  <node pkg="omnimaxbot_control" type="ar_sys_test_node" name="approach_test" output="screen"/>
 	
 </launch>

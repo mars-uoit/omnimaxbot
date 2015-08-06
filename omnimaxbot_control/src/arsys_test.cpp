@@ -30,7 +30,7 @@ int line_up_x()
   bool isLinedUp = false;
   double goal = 0.0472; //found experimentally
   double error;
-  double tolerance = 0.0025;
+  double tolerance = 0.00635; // +/-0.25 inches
 
   geometry_msgs::Twist vel;
   vel.linear.y = 0.0;
@@ -76,7 +76,7 @@ int approach(double goal)
   double errorX;
   double errorY;
   double toleranceY = 0.025;
-  double toleranceX = 0.0025;
+  double toleranceX = 0.00635;
 
   geometry_msgs::Twist vel;
   vel.linear.z = 0.0;

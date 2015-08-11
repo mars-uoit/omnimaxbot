@@ -53,7 +53,7 @@
   <node machine="omnimaxbot" pkg="omnimaxbot_control" type="laser_scan_odom_node" name="laser_scan_odom_node"/>
   
   <!-- Launch kinect directly from omnimaxbot -->
-  <!-- roslaunch openni_launch openni.launch -->
+  <!-- roslaunch omnimaxbot_control kinect.launch -->
   
   <!-- Convert the depth image to a laser scan -->
   <node machine="omnimaxbot" pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan">

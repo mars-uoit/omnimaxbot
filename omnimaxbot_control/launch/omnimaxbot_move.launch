@@ -63,14 +63,8 @@
   </node> 
   
   <!-- Launch Bumblebee2 -->
-  <node machine="omnimaxbot" pkg="camera1394stereo" type="camera1394stereo_node" name="camera1394stereo_node" output="screen" >
-    <param name="video_mode" value="format7_mode3" />
-    <param name="format7_color_coding" value="raw16" />
-    <param name="bayer_pattern" value="grbg" />
-    <param name="bayer_method" value="" />
-    <param name="stereo_method" value="Interlaced" />
-    <param name="camera_info_url_left" value="$(find omnimaxbot_2d_nav)/calibration/0_left.yaml" />
-    <param name="camera_info_url_right" value="$(find omnimaxbot_2d_nav)/calibration/0_right.yaml" />
+  <node machine="omnimaxbot" pkg="camera1394stereo" type="camera1394stereo_node" name="camera1394stereo_node" output="screen">
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/camera1394stereo_params.yaml" command="load"/>
   </node>
 	
   <!-- Launch camera processing -->
@@ -81,19 +75,13 @@
     <remap from="/camera_info" to="/stereo_camera/right/camera_info" />
     <remap from="/image" to="/stereo_camera/right/image_rect_color" />
     <remap from="/transform" to="/tf" />
-    <param name="image_is_rectified" type="bool" value="true"/>
-    <param name="marker_size" type="double" value="0.086"/>
-    <param name="board_config" type="string" value="$(find ar_sys)/data/single/board.yml"/>
-    <param name="board_frame" type="string" value="/board1" />
-    <param name="draw_markers" type="bool" value="true" />
-    <param name="draw_markers_cube" type="bool" value="true" />
-    <param name="draw_markers_axis" type="bool" value="false" />
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/ar_sys_params.yaml" command="load"/>
   </node>
 
   <!-- launch image_view -->
   <!-- <node pkg="image_view" type="image_view" name="image_view" output="screen"> -->
   <!--   <remap from="image" to="/ar_single_board/result" />  -->
-  <!--   <param name="autosize" type="bool" value="true" />  -->
+  <!--   <param name="autosize" type="bool" value="false" />  -->
   <!-- </node> -->
 
   <!-- Load the map -->	
@@ -112,7 +100,7 @@
     <!-- <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/dwa_local_planner_params.yaml" command="load"/> -->
     <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/global_planner_params.yaml" command="load"/>
     <remap from="/cmd_vel" to="/omni_cmd_vel"/>
-    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
+    <!-- <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/> -->
     <param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS"/>
     <param name="base_global_planner" value="global_planner/GlobalPlanner"/>
   </node>
@@ -130,8 +118,8 @@
   <!--   <param name="_serial" type="int" value="299104"/> -->
   <!-- </node> -->
 
-  <node pkg="omnimaxbot_control" type="move_test_node" name="move_test" output="screen"/>
+  <node pkg="omnimaxbot_control" type="omnimaxbot_move_node" name="move_test" output="screen"/>
 
-  <node pkg="omnimaxbot_control" type="ar_sys_test_node" name="approach_test" output="screen"/>
+  <node pkg="omnimaxbot_control" type="omnimaxbot_approach_node" name="approach_test" output="screen"/>
 	
 </launch>

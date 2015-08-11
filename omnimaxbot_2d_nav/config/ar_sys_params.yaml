@@ -1,0 +1,8 @@
+image_is_rectified: true
+#marker_size: 0.086 (for A4)
+marker_size: 0.1235 #for A3
+board_config: $(find ar_sys)/data/single/board.yml
+board_frame: ash_can
+draw_markers: true
+draw_markers_cube: true
+draw_markers_axis: false

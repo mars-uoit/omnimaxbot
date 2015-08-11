@@ -1,0 +1,7 @@
+video_mode: format7_mode3"
+format7_color_coding: raw16
+bayer_pattern: grbg
+bayer_method: 
+stereo_method: Interlaced
+camera_info_url_left: $(find omnimaxbot_2d_nav)/calibration/0_left.yaml
+camera_info_url_right: $(find omnimaxbot_2d_nav)/calibration/0_right.yaml

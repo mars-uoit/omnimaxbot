@@ -22,7 +22,7 @@
     <remap from="/image" to="/stereo_camera/right/image_rect_color" />
     <remap from="/transform" to="/tf" />
     <param name="image_is_rectified" type="bool" value="true"/>
-    <param name="marker_size" type="double" value="0.086"/>
+    <param name="marker_size" type="double" value="0.1235"/>
     <param name="board_config" type="string" value="$(find ar_sys)/data/single/board.yml"/>
     <param name="board_frame" type="string" value="/board1" />
     <param name="draw_markers" type="bool" value="true" />

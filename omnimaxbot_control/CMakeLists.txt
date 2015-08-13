@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   tf
   sensor_msgs
+  phidgets
 )
 
 ## System dependencies are found with CMake's conventions

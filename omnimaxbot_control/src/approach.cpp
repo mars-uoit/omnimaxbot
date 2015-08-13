@@ -7,6 +7,7 @@
 #include <tf/transform_datatypes.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/Bool.h>
+#include "phidgets/encoder_params.h"
 
 //fork height publisher
 ros::Publisher fork_pub;
@@ -19,10 +20,12 @@ float xDist;
 float yDist;
 float zDist;
 
-//global variable for callback
-bool metGoal = false;
-
-bool goalReached = false;
+//global variables for callback
+bool frontForkGoalReached = false;
+bool rearForkGoalReached = false;
+bool moveGoalReached = false;
+int frontForkPosition = 0;
+int rearForkPosition = 0;
 
 //lines the forks up with the can
 int line_up_x()
@@ -130,19 +133,59 @@ int approach(double goalY)
 
   return 0;
 }
- 
 
-//tell forks to raise/lower by a certain amount, knowing the distance between the AR code and the flange
+void front_fork_height_callback(const phidgets::encoder_params::ConstPtr& msg)
+{
+    frontForkPosition = msg->count;
+}
+
+void rear_fork_height_callback(const phidgets::encoder_params::ConstPtr& msg)
+{
+    rearForkPosition = msg->count;
+}
+
+
+//tell forks to raise/lower by a certain amount
 int lift(double dist)
 {
-  bool isFirst = true;
-  double offset = 0.346;
-  double startHeight = 0.2725;
+
+  ros::spinOnce();
+  double conv = 39.3700787; //inchs per metre
+  double gearRatio = 13.0;
+  double TPI = 10.0; //threads per inch
+  double cpr = 300.0; //from encoder
+  double frFrkPs = frontForkPosition;
+  double rrFrkPs = rearForkPosition;
+  double avgPs = (((((frFrkPs + rrFrkPs)/2)/cpr)/gearRatio)/TPI)/conv; //find the average encoder count position and convert from encoder counts to metres
+  std_msgs::Float32 goal;
+  goal.data = avgPs + dist;
 
   ros::AsyncSpinner spinner(4);
   spinner.start();
 
-  while (ros::ok() && metGoal == false)
+  while (ros::ok() && frontForkGoalReached == false && rearForkGoalReached == false)
+  {
+    fork_pub.publish(goal);
+  }
+
+  spinner.stop();
+
+  return 0;
+}
+
+ 
+/*
+//tell forks to raise/lower by a certain amount, knowing the distance between the AR code and the flange
+int lift(double dist)
+{
+  bool isFirst = true;
+  double offset = 0.297;
+  double startHeight = 0.778;
+
+  ros::AsyncSpinner spinner(4);
+  spinner.start();
+
+  while (ros::ok() && metForkGoal == false)
   {
     if (isFirst)
     {
@@ -157,6 +200,7 @@ int lift(double dist)
 
   return 0;
 }
+*/
 
 void arsys_callback(const geometry_msgs::Vector3Stamped::ConstPtr& msg)
 {
@@ -166,14 +210,19 @@ void arsys_callback(const geometry_msgs::Vector3Stamped::ConstPtr& msg)
   zDist = msg->vector.y * -1;
 }
 
-void fork_callback(const std_msgs::Bool::ConstPtr& msg)
+void front_fork_callback(const std_msgs::Bool::ConstPtr& msg)
 {
-  metGoal = msg->data;
+  frontForkGoalReached = msg->data;
 }
 
-void goal_callback(const std_msgs::Bool::ConstPtr& msg)
+void rear_fork_callback(const std_msgs::Bool::ConstPtr& msg)
 {
-  goalReached = msg->data;
+  rearForkGoalReached = msg->data;
+}
+
+void move_callback(const std_msgs::Bool::ConstPtr& msg)
+{
+  moveGoalReached = msg->data;
 }
 
 int main(int argc, char** argv)
@@ -183,14 +232,11 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "arsys_test");
   ros::NodeHandle n;
   
-  //setup subscriber
+  //setup subscribers
   ros::Subscriber ar_sub = n.subscribe("/ar_single_board/position", 1, arsys_callback);
-
-  //setup subscriber
-  ros::Subscriber goal_sub = n.subscribe("fork_goal_reached", 1, fork_callback);
-
-  //setup subscriber
-  ros::Subscriber move_goal_sub = n.subscribe("goal_reached", 1, goal_callback);
+  ros::Subscriber front_fork_goal_sub = n.subscribe("phidgets/motorcontrol/299103/encoder", 1, front_fork_height_callback);
+  ros::Subscriber rear_fork_goal_sub = n.subscribe("phidgets/motorcontrol/299104/encoder", 1, rear_fork_height_callback);
+  ros::Subscriber move_goal_sub = n.subscribe("goal_reached", 1, move_callback);
 
   //setup fork goal publisher
   fork_pub = n.advertise<std_msgs::Float32>("fork_position", 1);
@@ -203,19 +249,22 @@ int main(int argc, char** argv)
 
   while(ros::ok())
   {
-    if(goalReached)
+    if(moveGoalReached)
     {
       line_up_x();
 
       approach(0.25); //found experimentally
 
-      /*
-        lift(0.0508); //lift 2 inches
+      lift(0.0508); //lift 2 inches
 
-        lift(-0.0508); //put back down
+      ros::Duration(2.0).sleep();  //wait 2 seconds
 
-        approach(0.90); //reverse enough for the forks to clear the can
-      */
+      lift(-0.0635); //put back down
+
+      approach(0.90); //reverse enough for the forks to clear the can
+
+      lift(0.0127);
+      
     }
   }
 

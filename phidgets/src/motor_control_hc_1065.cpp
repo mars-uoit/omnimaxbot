@@ -70,7 +70,7 @@ double derivative = 0;
 double Kp = 0.8;
 double Ki = 0.5;
 double Kd = 0.1;
-int deadband = 3071;
+int deadband = 1535;
 
 int position = 0;
 int targetPosition = 0;
@@ -144,7 +144,7 @@ void PID(int actualPosition)
     {
       start_motors(duty_cycle);
     }
-    ROS_INFO_STREAM("duty_cycle: " << duty_cycle);
+    //ROS_INFO_STREAM("duty_cycle: " << duty_cycle);
     goal_pub.publish(goalReached);
   }
 }
@@ -216,7 +216,7 @@ int EncoderUpdateHandler(CPhidgetMotorControlHandle MC, void *userPtr, int Index
 {
   position -= positionChange; 
 
-  ROS_INFO_STREAM("position: " << position);
+  //ROS_INFO_STREAM("position: " << position);
 
   phidgets::encoder_params m;
   m.index = Index;
@@ -354,7 +354,7 @@ void positionCommandCallback(const std_msgs::Float32::ConstPtr& msg)
 
   targetPosition = hold;
   timedOut = false;
-  ROS_INFO_STREAM("targetPosition = " << targetPosition);
+  //ROS_INFO_STREAM("targetPosition = " << targetPosition);
 }
 
 int main(int argc, char* argv[])
@@ -390,6 +390,7 @@ int main(int argc, char* argv[])
 
     const int buffer_length = 100;        
     std::string topic_name = topic_path + name;
+    std::string enc_topic_name = topic_path + name;
     std::string service_name = name;
     if (serial_number > -1) 
     {
@@ -399,14 +400,17 @@ int main(int argc, char* argv[])
       topic_name += ser;
       service_name += "/";
       service_name += ser;
+      enc_topic_name += "/";
+      enc_topic_name += ser;
+      enc_topic_name += "/encoder";
     }
-    motors_pub = n.advertise<phidgets::motor_params>(topic_name, buffer_length);
+    motors_pub = n.advertise<phidgets::motor_params>(topic_name, buffer_length); 
 
     // receive position commands
     ros::Subscriber position_sub = n.subscribe("fork_position", 1, positionCommandCallback);
     
     // publish encoder counts
-    encoder_pub = n.advertise<phidgets::encoder_params>("fork_encoder", 5);
+    encoder_pub = n.advertise<phidgets::encoder_params>(enc_topic_name, 5);
 
     // publish encoder counts
     goal_pub = n.advertise<std_msgs::Bool>("fork_goal_reached", 1);
@@ -435,6 +439,7 @@ int main(int argc, char* argv[])
 
     //disconnect(phid);
   }
+  stop_motors();
   disconnect(phid);
   return 0;
 }

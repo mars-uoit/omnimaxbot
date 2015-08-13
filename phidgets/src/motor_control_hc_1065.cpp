@@ -345,7 +345,7 @@ void positionCommandCallback(const std_msgs::Float32::ConstPtr& msg)
   double unroundedGoal = rawPosition * conv * gear_ratio * TPI * cpr;
   int hold = (int)unroundedGoal;
 
-  ROS_INFO_STREAM("hold = " << hold);
+  //ROS_INFO_STREAM("hold = " << hold);
 
   if(unroundedGoal > 0 && unroundedGoal - hold >= 0.5)
     hold += 1;
@@ -354,7 +354,7 @@ void positionCommandCallback(const std_msgs::Float32::ConstPtr& msg)
 
   targetPosition = hold;
   timedOut = false;
-  //ROS_INFO_STREAM("targetPosition = " << targetPosition);
+  ROS_INFO_STREAM("targetPosition = " << targetPosition);
 }
 
 int main(int argc, char* argv[])
@@ -404,7 +404,7 @@ int main(int argc, char* argv[])
       enc_topic_name += ser;
       enc_topic_name += "/encoder";
     }
-    motors_pub = n.advertise<phidgets::motor_params>(topic_name, buffer_length); 
+    motors_pub = n.advertise<phidgets::motor_params>(topic_name, buffer_length);
 
     // receive position commands
     ros::Subscriber position_sub = n.subscribe("fork_position", 1, positionCommandCallback);

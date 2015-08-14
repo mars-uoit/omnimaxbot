@@ -148,7 +148,7 @@ void rear_fork_height_callback(const phidgets::encoder_params::ConstPtr& msg)
 //tell forks to raise/lower by a certain amount
 int lift(double dist)
 {
-
+  ros::Duration(0.5).sleep();
   ros::spinOnce();
   double conv = 39.3700787; //inchs per metre
   double gearRatio = 13.0;
@@ -159,6 +159,8 @@ int lift(double dist)
   double avgPs = (((((frFrkPs + rrFrkPs)/2)/cpr)/gearRatio)/TPI)/conv; //find the average encoder count position and convert from encoder counts to metres
   std_msgs::Float32 goal;
   goal.data = avgPs + dist;
+  
+  fork_pub.publish(goal);
 
   ros::AsyncSpinner spinner(4);
   spinner.start();

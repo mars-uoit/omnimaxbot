@@ -128,8 +128,6 @@
     <param name="serial" value="299104"/>
   </node>
 
-  <node pkg="omnimaxbot_control" type="omnimaxbot_move_node" name="move_test" output="screen"/>
-
-  <node pkg="omnimaxbot_control" type="omnimaxbot_approach_node" name="approach_test" output="screen"/>
+  <node pkg="omnimaxbot_control" type="omnimaxbot_move_test" name="move_test" output="screen"/>
 	
 </launch>

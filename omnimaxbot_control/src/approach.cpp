@@ -48,14 +48,11 @@ int line_up_x()
   while (ros::ok() && isLinedUp == false)
   {
     error = xDist - goal;
-    //ROS_INFO_STREAM("goal = " << goal);
-    //ROS_INFO_STREAM("xDist = " << xDist);
-    //ROS_INFO_STREAM("Error = " << error);
 
     if ((error > 0 && error <= tolerance) || (error < 0 && error > -tolerance))
     {
       isLinedUp = true;
-      vel.linear.x = 0.001;
+      vel.linear.x = 0.0;
     }
     else if (error < 0)
     {
@@ -144,11 +141,10 @@ void rear_fork_height_callback(const phidgets::encoder_params::ConstPtr& msg)
     rearForkPosition = msg->count;
 }
 
-
 //tell forks to raise/lower by a certain amount
 int lift(double dist)
 {
-
+  ros::Duration(0.5).sleep();
   ros::spinOnce();
   double conv = 39.3700787; //inchs per metre
   double gearRatio = 13.0;
@@ -159,6 +155,8 @@ int lift(double dist)
   double avgPs = (((((frFrkPs + rrFrkPs)/2)/cpr)/gearRatio)/TPI)/conv; //find the average encoder count position and convert from encoder counts to metres
   std_msgs::Float32 goal;
   goal.data = avgPs + dist;
+  
+  fork_pub.publish(goal);
 
   ros::AsyncSpinner spinner(4);
   spinner.start();
@@ -173,34 +171,29 @@ int lift(double dist)
   return 0;
 }
 
- 
-/*
-//tell forks to raise/lower by a certain amount, knowing the distance between the AR code and the flange
-int lift(double dist)
+//tell forks to lower the can
+//this is found by knowing what zDist is when the can is on the ground
+int drop()
 {
-  bool isFirst = true;
+  ros::Duration(0.5).sleep();
   double offset = 0.297;
-  double startHeight = 0.778;
+  double zGroundHeight = 0.1;//find this experimentally
+
+  std_msgs::Float32 goal;
+  goal.data = zGroundHeight - zDist - 0.0127; //lower 0.5 inch lower than needed to ensure that the can is off of the forks 
 
   ros::AsyncSpinner spinner(4);
   spinner.start();
 
-  while (ros::ok() && metForkGoal == false)
+  while (ros::ok() && frontForkGoalReached == false && rearForkGoalReached == false)
   {
-    if (isFirst)
-    {
-      ros::spinOnce();
-      std_msgs::Float32 goal;
-      goal.data = zDist + offset + dist - startHeight;
-      fork_pub.publish(goal);
-    }
+    fork_pub.publish(goal);
   }
 
   spinner.stop();
 
   return 0;
 }
-*/
 
 void arsys_callback(const geometry_msgs::Vector3Stamped::ConstPtr& msg)
 {
@@ -234,9 +227,11 @@ int main(int argc, char** argv)
   
   //setup subscribers
   ros::Subscriber ar_sub = n.subscribe("/ar_single_board/position", 1, arsys_callback);
-  ros::Subscriber front_fork_goal_sub = n.subscribe("phidgets/motorcontrol/299103/encoder", 1, front_fork_height_callback);
-  ros::Subscriber rear_fork_goal_sub = n.subscribe("phidgets/motorcontrol/299104/encoder", 1, rear_fork_height_callback);
-  ros::Subscriber move_goal_sub = n.subscribe("goal_reached", 1, move_callback);
+  ros::Subscriber front_fork_height_sub = n.subscribe("phidgets/motorcontrol/299103/encoder", 1, front_fork_height_callback);
+  ros::Subscriber rear_fork_height_sub = n.subscribe("phidgets/motorcontrol/299104/encoder", 1, rear_fork_height_callback);
+  ros::Subscriber front_fork_goal_sub = n.subscribe("phidgets/motorcontrol/299103/goal_reached", 1, front_fork_callback);
+  ros::Subscriber rear_fork_goal_sub = n.subscribe("phidgets/motorcontrol/299104/goal_reached", 1, rear_fork_callback);
+  ros::Subscriber move_goal_sub = n.subscribe("move_base_goal_reached", 1, move_callback);
 
   //setup fork goal publisher
   fork_pub = n.advertise<std_msgs::Float32>("fork_position", 1);
@@ -263,8 +258,7 @@ int main(int argc, char** argv)
 
       approach(0.90); //reverse enough for the forks to clear the can
 
-      lift(0.0127);
-      
+      lift(0.0127); 
     }
   }
 

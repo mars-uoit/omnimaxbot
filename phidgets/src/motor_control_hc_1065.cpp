@@ -354,7 +354,7 @@ void positionCommandCallback(const std_msgs::Float32::ConstPtr& msg)
 
   targetPosition = hold;
   timedOut = false;
-  ROS_INFO_STREAM("targetPosition = " << targetPosition);
+  //ROS_INFO_STREAM("targetPosition = " << targetPosition);
 }
 
 int main(int argc, char* argv[])
@@ -391,6 +391,7 @@ int main(int argc, char* argv[])
     const int buffer_length = 100;        
     std::string topic_name = topic_path + name;
     std::string enc_topic_name = topic_path + name;
+    std::string goal_topic_name = topic_path + name;
     std::string service_name = name;
     if (serial_number > -1) 
     {
@@ -403,6 +404,9 @@ int main(int argc, char* argv[])
       enc_topic_name += "/";
       enc_topic_name += ser;
       enc_topic_name += "/encoder";
+      goal_topic_name += "/";
+      goal_topic_name += ser;
+      goal_topic_name += "/goal";
     }
     motors_pub = n.advertise<phidgets::motor_params>(topic_name, buffer_length);
 
@@ -413,7 +417,7 @@ int main(int argc, char* argv[])
     encoder_pub = n.advertise<phidgets::encoder_params>(enc_topic_name, 5);
 
     // publish encoder counts
-    goal_pub = n.advertise<std_msgs::Bool>("fork_goal_reached", 1);
+    goal_pub = n.advertise<std_msgs::Bool>(goal_topic_name, 1);
 
     last_command = ros::Time::now();
 

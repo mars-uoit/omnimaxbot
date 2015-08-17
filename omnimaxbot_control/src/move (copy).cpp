@@ -89,6 +89,7 @@ int main(int argc, char** argv)
   goal_pub.publish(goalReached);
 
   move(3.4188326718,-0.443406369627,0.00252242960762,0.999996818669);
+
 /*
   bool isFirst = true;
 

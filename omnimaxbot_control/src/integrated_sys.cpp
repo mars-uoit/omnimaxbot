@@ -19,15 +19,26 @@ ros::Publisher fork_pub;
 ros::Publisher vel_pub;
 
 //global variables to hold can position
-float xDist;
-float yDist;
-float zDist;
+float canXDist;
+float canYDist;
+double canTheta;
+
+//global variables to hold drop position
+float dropXDist;
+float dropYDist;
+double dropTheta;
 
 //global variables for callback
 bool frontForkGoalReached = false;
 bool rearForkGoalReached = false;
 int frontForkPosition = 0;
 int rearForkPosition = 0;
+
+//variables for raising/lowering forks
+double conv = 39.3700787; //inchs per metre
+double gearRatio = 13.0;
+double TPI = 10.0; //threads per inch
+double cpr = 300.0; //from encoder
 
 struct poses
 {
@@ -49,15 +60,15 @@ void set_poses()
   pickup2.z = 0.00252242960762;
   pickup2.w = 0.999996818669;
 
-  dropoff.x = 3.4188326718;
-  dropoff.y = -0.443406369627;
-  dropoff.z = 0.00252242960762;
-  dropoff.w = 0.999996818669;
+  dropoff.x = 2.05338816726;
+  dropoff.y = 0.210103696523;
+  dropoff.z = 0.99999889778;
+  dropoff.w = 0.00148473533467;
 
-  init.x = 0.0;
-  init.y = 0.0;
-  init.z = 0.0;
-  init.w = 0.0;
+  init.x = 0.00301826748789;
+  init.y = -0.156723602908;
+  init.z = 0.00796528261361;
+  init.w = 0.999968276633;
 }
 
 //Takes an x position, y position, and orientation and sends it to move_base. These must be in the map frame
@@ -97,8 +108,6 @@ int move(double poseX, double poseY, double orientationZ, double orientationW)
     ROS_INFO("The base failed to move");
   }
 
-  ac.cancelAllGoals();
-
   return 0;
 }
 
@@ -122,7 +131,7 @@ int line_up_x()
 
   while (ros::ok() && isLinedUp == false)
   {
-    error = xDist - goal;
+    error = canXDist - goal;
 
     if ((error > 0 && error <= tolerance) || (error < 0 && error > -tolerance))
     {
@@ -145,7 +154,7 @@ int line_up_x()
   return 0;
 } 
 
-int approach(double goalY)
+int approach_can(double goalY)
 {
   bool isClose = false;
   bool xTol = false;
@@ -166,8 +175,72 @@ int approach(double goalY)
 
   while (ros::ok() && isClose == false)
   {
-    errorY = goalY - yDist;
-    errorX = xDist - goalX;
+    errorY = goalY - canYDist;
+    errorX = canXDist - goalX;
+
+    if ((errorX > 0 && errorX <= toleranceX) || (errorX < 0 && errorX > -toleranceX))
+    {
+      vel.linear.x = 0.0;
+      xTol = true;
+    }
+    else if (errorX < 0)
+    {
+      vel.linear.x = -0.05;
+      xTol = false;
+    }
+    else
+    {
+      vel.linear.x = 0.05;
+      xTol = false;
+    }
+      
+    if ((errorY > 0 && errorY <= toleranceY) || (errorY < 0 && errorY > -toleranceY))
+    {
+      isClose = true;
+      vel.linear.y = 0.0;
+    }
+    else if (errorY < 0 && xTol == true)
+    {
+      vel.linear.y = -0.1;
+    }
+    else if (errorY > 0 && xTol == true)
+    {
+      vel.linear.y = 0.1;
+    }
+    vel_pub.publish(vel); 
+  }
+
+  spinner.stop();
+
+  return 0;
+}
+
+int approach_drop(double goalY)
+{
+  bool isClose = false;
+  bool xTol = false;
+  double errorX;
+  double errorY;
+  double errorTh;
+  double toleranceY = 0.025;
+  double toleranceX = 0.0381;
+  double toleranceTh = 0.0436332313; //radians
+  double goalX = 0.0;
+  double goatTh = -1.570796327;//-pi/2 rad from testing
+
+  geometry_msgs::Twist vel;
+  vel.linear.z = 0.0;
+  vel.angular.x = 0.0;
+  vel.angular.y = 0.0;
+
+  ros::AsyncSpinner spinner(4);
+  spinner.start();
+
+  while (ros::ok() && isClose == false)
+  {
+    errorY = goalY - dropYDist;
+    errorX = dropXDist - goalX;
+    errorTh = 
 
     if ((errorX > 0 && errorX <= toleranceX) || (errorX < 0 && errorX > -toleranceX))
     {
@@ -221,13 +294,18 @@ int lift(double dist)
 {
   ros::Duration(0.5).sleep();
   ros::spinOnce();
-  double conv = 39.3700787; //inchs per metre
-  double gearRatio = 13.0;
-  double TPI = 10.0; //threads per inch
-  double cpr = 300.0; //from encoder
   double frFrkPs = frontForkPosition;
   double rrFrkPs = rearForkPosition;
   double avgPs = (((((frFrkPs + rrFrkPs)/2)/cpr)/gearRatio)/TPI)/conv; //find the average encoder count position and convert from encoder counts to metres
+
+  geometry_msgs::Twist vel;
+  vel.linear.x = 0.0;
+  vel.linear.y = 0.1;
+  vel.linear.z = 0.0;
+  vel.angular.x = 0.0;
+  vel.angular.y = 0.0;
+  vel.angular.z = 0.0;
+
   std_msgs::Float32 goal;
   goal.data = avgPs + dist;
   
@@ -241,29 +319,41 @@ int lift(double dist)
     fork_pub.publish(goal);
   }
 
+  int stop = 8;
+  ros::Time start = ros::Time::now(); 
+
+  while(ros::ok() && (ros::Time::now() - start).toSec() < stop)
+  {
+    vel_pub.publish(vel);
+  }  
+
   spinner.stop();
 
   return 0;
 }
 
-//tell forks to lower the can
-//this is found by knowing what zDist is when the can is on the ground
+//tell forks to lower the can to 2" below the start height of the forks
 int drop()
 {
   ros::Duration(0.5).sleep();
-  double offset = 0.297;
-  double zGroundHeight = 0.1;//FIND THIS
+  ros::spinOnce();
 
   std_msgs::Float32 goal;
-  goal.data = zGroundHeight - zDist - 0.0127; //lower 0.5 inch lower than needed to ensure that the can is off of the forks 
+  goal.data = -0.0508; //found experimentally 
 
   ros::AsyncSpinner spinner(4);
   spinner.start();
+
+  fork_pub.publish(goal);
+
+  ros::Duration(0.1).sleep();
 
   while (ros::ok() && frontForkGoalReached == false && rearForkGoalReached == false)
   {
     fork_pub.publish(goal);
   }
+
+  ros::Duration(0.5).sleep();
 
   spinner.stop();
 
@@ -275,10 +365,6 @@ int prep()
 {
   ros::Duration(0.5).sleep();
   ros::spinOnce();
-  double conv = 39.3700787; //inchs per metre
-  double gearRatio = 13.0;
-  double TPI = 10.0; //threads per inch
-  double cpr = 300.0; //from encoder
   double frFrkPs = frontForkPosition;
   double rrFrkPs = rearForkPosition;
   double avgPs = (((((frFrkPs + rrFrkPs)/2)/cpr)/gearRatio)/TPI)/conv; //find the average encoder count position and convert from encoder counts to metres
@@ -290,7 +376,7 @@ int prep()
   else
   {
     std_msgs::Float32 goal;
-    goal.data = avgPs * -1;
+    goal.data = 0;
   
     fork_pub.publish(goal);
 
@@ -308,12 +394,20 @@ int prep()
   return 0;
 }
 
-void arsys_callback(const geometry_msgs::Vector3Stamped::ConstPtr& msg)
+void lift_arsys_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
   //convert from ar_sys frame to robot frame
-  xDist = msg->vector.x * -1;
-  yDist = msg->vector.z;
-  zDist = msg->vector.y * -1;
+  canXDist = msg->pose.position.x * -1;
+  canYDist = msg->pose.position.z;
+  canTheta = tf::getYaw(msg->pose.orientation);
+}
+
+void drop_arsys_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
+{
+  //convert from ar_sys frame to robot frame
+  dropXDist = msg->pose.position.x * -1;
+  dropYDist = msg->pose.position.z;
+  dropTheta = tf::getYaw(msg->pose.orientation);
 }
 
 void front_fork_callback(const std_msgs::Bool::ConstPtr& msg)
@@ -333,17 +427,27 @@ int main(int argc, char** argv)
   ros::NodeHandle n;
   
   //setup subscribers
-  ros::Subscriber ar_sub = n.subscribe("/ar_single_board/position", 1, arsys_callback);
+  ros::Subscriber lift_ar_sub = n.subscribe("/can_ar_sys/pose", 1, lift_arsys_callback);
+  ros::Subscriber drop_ar_sub = n.subscribe("/drop_ar_sys/pose", 1, drop_arsys_callback);
   ros::Subscriber front_fork_height_sub = n.subscribe("phidgets/motorcontrol/299103/encoder", 1, front_fork_height_callback);
   ros::Subscriber rear_fork_height_sub = n.subscribe("phidgets/motorcontrol/299104/encoder", 1, rear_fork_height_callback);
-  ros::Subscriber front_fork_goal_sub = n.subscribe("phidgets/motorcontrol/299103/goal_reached", 1, front_fork_callback);
-  ros::Subscriber rear_fork_goal_sub = n.subscribe("phidgets/motorcontrol/299104/goal_reached", 1, rear_fork_callback);
+  ros::Subscriber front_fork_goal_sub = n.subscribe("phidgets/motorcontrol/299103/goal", 1, front_fork_callback);
+  ros::Subscriber rear_fork_goal_sub = n.subscribe("phidgets/motorcontrol/299104/goal", 1, rear_fork_callback);
 
   //setup fork goal publisher
   fork_pub = n.advertise<std_msgs::Float32>("fork_position", 1);
 
   //setup velocity publisher
   vel_pub = n.advertise<geometry_msgs::Twist>("omni_cmd_vel", 1);
+
+  //tell the action client that we want to spin a thread by default
+  MoveBaseClient ac("move_base", true);
+
+  //wait for the action server to come up
+  while(!ac.waitForServer(ros::Duration(5.0)))
+  {
+    ROS_INFO("Waiting for the move_base action server to come up");
+  }
 
   set_poses();
 
@@ -353,17 +457,17 @@ int main(int argc, char** argv)
 
   line_up_x();
 
-  approach(0.25); //found experimentally
+  approach_can(0.25); //found experimentally
 
   lift(0.0508); //lift 2 inches
 
-  approach(0.90);
-
   move(dropoff.x, dropoff.y, dropoff.z, dropoff.w);
+
+  approach_drop(1.0);
 
   drop();
 
-  approach(0.90);
+  approach_can(0.90);
 
   move(init.x, init.y, init.z, init.w);
 

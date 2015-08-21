@@ -39,7 +39,7 @@
   
   <!-- Launch the rear laser sensor -->
   <!-- <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node_rear" name="rear_laser" respawn="true"> -->
-  <!--   <param name="host" value="192.168.1.3"/> -->
+  <!--   <param name="host" value="192.168.0.3"/> -->
   <!--   <param name="frame_id" value="rear_laser"/> -->
   <!-- </node> -->
   
@@ -50,7 +50,7 @@
   </node>
   
   <!-- Simulate odometry msg from scan matcher -->
-  <node machine="omnimaxbot" pkg="omnimaxbot_control" type="laser_scan_odom_node" name="laser_scan_odom_node"/>
+  <node machine="omnimaxbot" pkg="laser_scan_matcher" type="laser_scan_odometry_node" name="laser_scan_odometry_node"/>
   
   <!-- Launch kinect directly from omnimaxbot -->
   <!-- roslaunch omnimaxbot_control kinect.launch -->
@@ -60,7 +60,7 @@
     <param name="scan_height" value="400"/>
     <remap from="image" to="/camera/depth/image_rect"/>
     <remap from="scan" to="kinect_scan"/>
-  </node> 
+  </node>
   
   <!-- Launch Bumblebee2 -->
   <node machine="omnimaxbot" pkg="camera1394stereo" type="camera1394stereo_node" name="camera1394stereo_node" output="screen">
@@ -74,18 +74,18 @@
   <!-- Launch camera processing -->
   <node machine="omnimaxbot" pkg="stereo_image_proc" type="stereo_image_proc" name="stereo_image_proc" ns="stereo_camera"/>
 
-  <!-- Launch ar_sys -->
-  <node machine="omnimaxbot" pkg="ar_sys" type="single_board" name="ar_single_board" output="screen">
-    <remap from="/camera_info" to="/stereo_camera/right/camera_info" />
-    <remap from="/image" to="/stereo_camera/right/image_rect_color" />
-    <remap from="/transform" to="/tf" />
+  <!-- Launch ar_sys for can detection -->
+  <node machine="omnimaxbot" pkg="ar_sys" type="single_board" name="can_ar_sys" output="screen">
+    <remap from="/camera_info" to="/stereo_camera/right/camera_info"/>
+    <remap from="/image" to="/stereo_camera/right/image_rect_color"/>
+    <remap from="/transform" to="/tf"/>
     <param name="image_is_rectified" type="bool" value="true"/>
     <param name="marker_size" type="double" value="0.1235"/>
     <param name="board_config" type="string" value="$(find ar_sys)/data/single/board.yml"/>
-    <param name="board_frame" type="string" value="/board1" />
-    <param name="draw_markers" type="bool" value="true" />
-    <param name="draw_markers_cube" type="bool" value="true" />
-    <param name="draw_markers_axis" type="bool" value="false" />
+    <param name="board_frame" type="string" value="/board1"/>
+    <param name="draw_markers" type="bool" value="true"/>
+    <param name="draw_markers_cube" type="bool" value="true"/>
+    <param name="draw_markers_axis" type="bool" value="false"/>
   </node>
 
   <!-- launch image_view -->
@@ -122,14 +122,16 @@
   <node machine="omnimaxbot" pkg="phidgets" type="motor_control_hc_1065" name="front_fork_driver" respawn="true">
     <param name="serial" value="299103"/>
   </node>
-  
+
   <!-- Launch the rear fork driver -->
   <node machine="omnimaxbot" pkg="phidgets" type="motor_control_hc_1065" name="rear_fork_driver" respawn="true">
-    <param name="serial" value="299104"/>
-  </node>
+    <param name="serial" value="299104"/> 
+  </node> -->
 
-  <node pkg="omnimaxbot_control" type="omnimaxbot_move_node" name="move_test" output="screen"/>
+  <!-- <node pkg="omnimaxbot_control" type="omnimaxbot_move_node" name="move_test" output="screen"/> -->
 
-  <node pkg="omnimaxbot_control" type="omnimaxbot_approach_node" name="approach_test" output="screen"/>
+  <!-- <node pkg="omnimaxbot_control" type="omnimaxbot_approach_node" name="approach_test" output="screen"/> -->
+
+  <node pkg="omnimaxbot_control" type="omnimaxbot_control_node" name="integrated_test" output="screen"/>
 	
 </launch>

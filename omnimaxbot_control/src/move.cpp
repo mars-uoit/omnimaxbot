@@ -11,27 +11,18 @@
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
-ros::Publisher goal_pub;
-
-std_msgs::Bool goalReached;
+bool pickup = false;
+bool dropoff = false;
 
 double goalX;
 double goalY;
 double goalZ;
 double goalW;
 
-/*void move_callback(const geometry_msgs::Pose::ConstPtr& msg)
-{
-  goalReached.data = false;
-  goalX = msg->position.x;
-  goalY = msg->position.y;
-  goalZ = msg->orientation.z;
-  goalW = msg->orientation.w;
-} */
-
 //Takes an x position, y position, and orientation and sends it to move_base. These must be in the map frame
 int move(double poseX, double poseY, double orientationZ, double orientationW)
 {
+  ROS_INFO("In move()");
   MoveBaseClient ac("move_base", true);
   move_base_msgs::MoveBaseGoal goal;
 
@@ -54,8 +45,8 @@ int move(double poseX, double poseY, double orientationZ, double orientationW)
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
   {
     ROS_INFO("OmniMaxbot moved to position");
-    goalReached.data = true;
-    goal_pub.publish(goalReached);
+    //goalReached.data = true;
+    //goal_pub.publish(goalReached);
   }
   else
   {
@@ -65,15 +56,37 @@ int move(double poseX, double poseY, double orientationZ, double orientationW)
   return 0;
 }
 
+void pickup_callback(const std_msgs::Bool::ConstPtr& msg)
+{
+  pickup = msg->data;
+}
+
+void dropoff_callback(const std_msgs::Bool::ConstPtr& msg)
+{
+  dropoff = msg->data;
+}
+
 int main(int argc, char** argv)
 {
   //node setup
-  ros::init(argc, argv, "control");
+  ros::init(argc, argv, "move");
   ros::NodeHandle n;
 
-  //ros::Subscriber goal_sub = n.subscribe("move_goal", 1, move_callback);
+  ros::Subscriber pickup = n.subscribe("pickup_reached", 1, pickup_callback);
+  ros::Subscriber dropoff = n.subscribe("dropoff_reached", 1, dropoff_callback);
 
-  goal_pub = n.advertise<std_msgs::Bool>("move_base_goal_reached", 1);
+  ros::Publisher goal1_pub = n.advertise<std_msgs::Bool>("goal1_reached", 1);
+  ros::Publisher goal2_pub = n.advertise<std_msgs::Bool>("goal2_reached", 1);
+
+  bool done = false;
+  bool firstMove = false;
+  bool secondMove = false;
+
+  std_msgs::Bool goal1Reached;
+  std_msgs::Bool goal2Reached;
+
+  goal1Reached.data = false;
+  goal2Reached.data = false;
 
   //tell the action client that we want to spin a thread by default
   MoveBaseClient ac("move_base", true);
@@ -84,29 +97,59 @@ int main(int argc, char** argv)
     ROS_INFO("Waiting for the move_base action server to come up");
   }
 
-  goalReached.data = false;
+  ROS_INFO("Moving to pick-up location");
 
-  goal_pub.publish(goalReached);
+
+  goal1_pub.publish(goal1Reached);
+  goal2_pub.publish(goal2Reached);
 
   move(3.4188326718,-0.443406369627,0.00252242960762,0.999996818669);
-/*
-  bool isFirst = true;
+
+  goal1Reached.data = true;
+  goal2Reached.data = false;
+  goal1_pub.publish(goal1Reached);
+  goal2_pub.publish(goal2Reached);
 
   ros::AsyncSpinner spinner(4);
   spinner.start();
 
-  while(ros::ok())
+  while(ros::ok() && done == false)
   {
-    if(isFirst)
+    if(pickup && !firstMove)
     {
+      ROS_INFO("Moving to drop-off location");
+
+      move(2.15884737476,-0.322894082763,0.999994485685,0.00332093362971);
+
+      goal1Reached.data = false;
+      goal2Reached.data = true;
+      goal1_pub.publish(goal1Reached);
+      goal2_pub.publish(goal2Reached);
+
+      firstMove = true;
     }
-    else if(!goalReached);
+    
+    if(dropoff && !secondMove)
     {
-      move(goalX, goalY, goalZ, goalW);
+      ROS_INFO("Moving to stop location");
+
+      move(0.00301826748789,-0.156723602908,0.00796528261361,0.999968276633);
+
+      goal1Reached.data = false;
+      goal2Reached.data = false;
+      goal1_pub.publish(goal1Reached);
+      goal2_pub.publish(goal2Reached);
+
+      done = true;
+      secondMove = true;
     }
+  goal1_pub.publish(goal1Reached);
+  goal2_pub.publish(goal2Reached);
   }
 
+  ROS_INFO("exiting move.cpp");
+
   spinner.stop();
-*/
+
   return 0;
 }

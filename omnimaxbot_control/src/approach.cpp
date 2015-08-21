@@ -19,17 +19,59 @@ ros::Publisher vel_pub;
 float xDist;
 float yDist;
 float zDist;
+float yStart;
 
 //global variables for callback
 bool frontForkGoalReached = false;
 bool rearForkGoalReached = false;
-bool moveGoalReached = false;
+bool move1Reached = false;
+bool move2Reached = false;
 int frontForkPosition = 0;
 int rearForkPosition = 0;
+
+//returns forks to their 0 position (pickup height)
+int prep()
+{
+  ROS_INFO("In prep()");
+  ros::Duration(0.5).sleep();
+  ros::spinOnce();
+  double conv = 39.3700787; //inchs per metre
+  double gearRatio = 13.0;
+  double TPI = 10.0; //threads per inch
+  double cpr = 300.0; //from encoder
+  double frFrkPs = frontForkPosition;
+  double rrFrkPs = rearForkPosition;
+  double avgPs = (((((frFrkPs + rrFrkPs)/2)/cpr)/gearRatio)/TPI)/conv; //find the average encoder count position and convert from encoder counts to metres
+  
+  if(avgPs == 0)
+  {
+    //do nothing
+  }
+  else
+  {
+    std_msgs::Float32 goal;
+    goal.data = avgPs * -1;
+  
+    fork_pub.publish(goal);
+
+    ros::AsyncSpinner spinner(4);
+    spinner.start();
+
+    while (ros::ok() && frontForkGoalReached == false && rearForkGoalReached == false)
+    {
+      fork_pub.publish(goal);
+    }
+
+    spinner.stop();
+  }
+
+  return 0;
+}
 
 //lines the forks up with the can
 int line_up_x()
 {
+  ROS_INFO("In line_up_x()");
   bool isLinedUp = false;
   double goal = 0.0472; //found experimentally
   double error;
@@ -72,6 +114,7 @@ int line_up_x()
 
 int approach(double goalY)
 {
+  ROS_INFO("In approach()");
   bool isClose = false;
   bool xTol = false;
   double errorX;
@@ -88,6 +131,8 @@ int approach(double goalY)
 
   ros::AsyncSpinner spinner(4);
   spinner.start();
+
+  yStart = yDist;
 
   while (ros::ok() && isClose == false)
   {
@@ -131,6 +176,32 @@ int approach(double goalY)
   return 0;
 }
 
+int backup()
+{
+  ROS_INFO("In backup()");
+  int stop = 9;
+
+  geometry_msgs::Twist vel;
+  vel.linear.x = 0.0;
+  vel.linear.y = 0.1;
+  vel.linear.z = 0.0;
+  vel.angular.x = 0.0;
+  vel.angular.y = 0.0;
+  vel.angular.z = 0.0;
+
+  ros::Time start = ros::Time::now();
+  double time = 0.0;
+
+  while(ros::ok() && time < stop)
+  {
+    time = (ros::Time::now() - start).toSec();
+    vel_pub.publish(vel);
+  }
+
+  return 0;
+
+}
+
 void front_fork_height_callback(const phidgets::encoder_params::ConstPtr& msg)
 {
     frontForkPosition = msg->count;
@@ -144,6 +215,7 @@ void rear_fork_height_callback(const phidgets::encoder_params::ConstPtr& msg)
 //tell forks to raise/lower by a certain amount
 int lift(double dist)
 {
+  ROS_INFO("In lift()");
   ros::Duration(0.5).sleep();
   ros::spinOnce();
   double conv = 39.3700787; //inchs per metre
@@ -175,25 +247,49 @@ int lift(double dist)
 //this is found by knowing what zDist is when the can is on the ground
 int drop()
 {
-  ros::Duration(0.5).sleep();
-  double offset = 0.297;
-  double zGroundHeight = 0.1;//find this experimentally
+  ROS_INFO("In drop()");
+  ros::Time start;
+  int stop;
+  double zGroundHeight = -0.0298131331801; //found experimentally
 
   std_msgs::Float32 goal;
   goal.data = zGroundHeight - zDist - 0.0127; //lower 0.5 inch lower than needed to ensure that the can is off of the forks 
 
+  geometry_msgs::Twist vel;
+  vel.linear.x = 0.0;
+  vel.linear.z = 0.0;
+  vel.angular.x = 0.0;
+  vel.angular.y = 0.0;
+  vel.angular.z = 0.0;
+
+  start = ros::Time::now();
+  stop = 5;
+  double timesup = 0;
+
   ros::AsyncSpinner spinner(4);
   spinner.start();
+
+  while(ros::ok() && timesup < stop)
+  {
+    timesup = (ros::Time::now() - start).toSec();
+    vel.linear.y = -0.1;
+    vel_pub.publish(vel);
+  }
+
+  ros::Duration(0.5).sleep();
 
   while (ros::ok() && frontForkGoalReached == false && rearForkGoalReached == false)
   {
     fork_pub.publish(goal);
   }
 
+  ros::Duration(0.5).sleep();
+
   spinner.stop();
 
   return 0;
 }
+
 
 void arsys_callback(const geometry_msgs::Vector3Stamped::ConstPtr& msg)
 {
@@ -213,25 +309,31 @@ void rear_fork_callback(const std_msgs::Bool::ConstPtr& msg)
   rearForkGoalReached = msg->data;
 }
 
-void move_callback(const std_msgs::Bool::ConstPtr& msg)
+void move1_callback(const std_msgs::Bool::ConstPtr& msg)
 {
-  moveGoalReached = msg->data;
+  move1Reached = msg->data;
+}
+
+void move2_callback(const std_msgs::Bool::ConstPtr& msg)
+{
+  move2Reached = msg->data;
 }
 
 int main(int argc, char** argv)
 {
   ROS_INFO("Made it into main");
   //node setup
-  ros::init(argc, argv, "arsys_test");
+  ros::init(argc, argv, "approach");
   ros::NodeHandle n;
   
   //setup subscribers
   ros::Subscriber ar_sub = n.subscribe("/ar_single_board/position", 1, arsys_callback);
   ros::Subscriber front_fork_height_sub = n.subscribe("phidgets/motorcontrol/299103/encoder", 1, front_fork_height_callback);
   ros::Subscriber rear_fork_height_sub = n.subscribe("phidgets/motorcontrol/299104/encoder", 1, rear_fork_height_callback);
-  ros::Subscriber front_fork_goal_sub = n.subscribe("phidgets/motorcontrol/299103/goal_reached", 1, front_fork_callback);
-  ros::Subscriber rear_fork_goal_sub = n.subscribe("phidgets/motorcontrol/299104/goal_reached", 1, rear_fork_callback);
-  ros::Subscriber move_goal_sub = n.subscribe("move_base_goal_reached", 1, move_callback);
+  ros::Subscriber front_fork_goal_sub = n.subscribe("phidgets/motorcontrol/299103/goal", 1, front_fork_callback);
+  ros::Subscriber rear_fork_goal_sub = n.subscribe("phidgets/motorcontrol/299104/goal", 1, rear_fork_callback);
+  ros::Subscriber goal1_sub = n.subscribe("goal1_reached", 1, move1_callback);
+  ros::Subscriber goal2_sub = n.subscribe("goal2_reached", 1, move2_callback);
 
   //setup fork goal publisher
   fork_pub = n.advertise<std_msgs::Float32>("fork_position", 1);
@@ -239,28 +341,68 @@ int main(int argc, char** argv)
   //setup velocity publisher
   vel_pub = n.advertise<geometry_msgs::Twist>("omni_cmd_vel", 1);
 
+  //setup new_goal publisher
+  ros::Publisher pickup_pub = n.advertise<std_msgs::Bool>("pickup_reached", 1);
+  ros::Publisher dropoff_pub = n.advertise<std_msgs::Bool>("dropoff_reached", 1);
+
+  std_msgs::Bool pickup;
+  std_msgs::Bool dropoff;
+
+  pickup.data = false;
+  dropoff.data = false;
+
+  bool done = false;
+
+  bool approached = false;
+  bool dropped = false;
+
   ros::AsyncSpinner spinner(4);
   spinner.start();
 
-  while(ros::ok())
+  pickup_pub.publish(pickup);
+  dropoff_pub.publish(dropoff);
+
+  while(ros::ok() && done == false)
   {
-    if(moveGoalReached)
+    if(move1Reached == true && approached == false)
     {
+      ROS_INFO("In approach to lift can");
+      prep();
       line_up_x();
-
       approach(0.25); //found experimentally
+      lift(0.0508);
+      backup();
+      ros::Duration(0.5).sleep();
+      
+      pickup.data = true;
+      dropoff.data = false;
+      pickup_pub.publish(pickup);
+      dropoff_pub.publish(dropoff);
 
-      lift(0.0508); //lift 2 inches
-
-      ros::Duration(2.0).sleep();  //wait 2 seconds
-
-      lift(-0.0635); //put back down
-
-      approach(0.90); //reverse enough for the forks to clear the can
-
-      lift(0.0127); 
+      approached = true;
     }
+    
+    if(move2Reached == true && dropped == false)
+    {
+      ROS_INFO("Dropping can");
+      drop();
+      approach(0.90);
+      ros::Duration(0.5).sleep();
+
+      pickup.data = false;
+      dropoff.data = true;
+      pickup_pub.publish(pickup);
+      dropoff_pub.publish(dropoff);
+
+      done = true;
+      dropped = true;
+    }
+
+  pickup_pub.publish(pickup);
+  dropoff_pub.publish(dropoff);
   }
+
+  ROS_INFO("Exiting approach.cpp");
 
   spinner.stop();
     

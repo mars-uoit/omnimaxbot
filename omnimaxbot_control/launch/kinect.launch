@@ -5,7 +5,7 @@
   </include>
 
   <!-- Launch ar_sys for drop location detection -->
-  <node pkg="ar_sys" type="single_board" name="drop_ar_sys" output="screen">
+  <node machine="omnimaxbot" pkg="ar_sys" type="single_board" name="drop_ar_sys" output="screen" ns="drop_ar_sys">
     <remap from="/camera_info" to="/camera/rgb/camera_info" />
     <remap from="/image" to="/camera/rgb/image_rect_color" />
     <remap from="/transform" to="/tf" />

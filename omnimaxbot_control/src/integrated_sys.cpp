@@ -115,11 +115,18 @@ int move(double poseX, double poseY, double orientationZ, double orientationW)
 int line_up_x()
 {
   bool isLinedUp = false;
-  double goal = 0.0472; //found experimentally
-  double error;
-  double tolerance = 0.0381; // +/-1.5 inches
-
+  bool isAngled = true;
+  bool isFirst = true;
+  double xGoal = 0.0472; //found experimentally
+  double xError;
+  double xTolerance = 0.0381; // +/-1.5 inches
+  double thGoal = 1.570796327; //pi/2 found experimentally
+  double thErrorNow = 0;
+  double thErrorLast = 0;
+  double thTolerance = 0.0872664626; // +/- 5 deg (need to test this)
+ 
   geometry_msgs::Twist vel;
+  vel.linear.x = 0.0;
   vel.linear.y = 0.0;
   vel.linear.z = 0.0;
   vel.angular.x = 0.0;
@@ -131,22 +138,45 @@ int line_up_x()
 
   while (ros::ok() && isLinedUp == false)
   {
-    error = canXDist - goal;
+    xError = canXDist - xGoal;
 
-    if ((error > 0 && error <= tolerance) || (error < 0 && error > -tolerance))
+    if ((xError >= 0 && xError <= xTolerance) || (xError < 0 && xError > -xTolerance))
     {
       isLinedUp = true;
       vel.linear.x = 0.0;
     }
-    else if (error < 0)
+    else if (xError < 0)
     {
       vel.linear.x = -0.05;
     }
-    else
+    else if (xError > 0)
     {
       vel.linear.x = 0.05;
     }
     vel_pub.publish(vel); 
+  }
+
+  vel.linear.x = 0.0;
+
+  while (ros::ok() && isAngled == true)
+  {
+    thErrorNow = thGoal - canTheta;
+
+    if(thErrorNow <= thTolerance)
+    {
+      isAngled = false;
+      vel.angular.z = 0.0;
+    }
+    else if(thErrorLast > thErrorNow)
+    {
+      vel.angular.z = 0.1;
+    }
+    else
+    {
+      vel.angular.z = -0.1;
+    }
+    vel_pub.publish(vel);
+    thErrorLast = thErrorNow;
   }
 
   spinner.stop();
@@ -215,23 +245,30 @@ int approach_can(double goalY)
   return 0;
 }
 
-int approach_drop(double goalY)
+int approach_drop()
 {
   bool isClose = false;
   bool xTol = false;
+  bool isAngled = true;
   double errorX;
   double errorY;
   double errorTh;
+  double toleranceX = 0.0127;
   double toleranceY = 0.025;
-  double toleranceX = 0.0381;
-  double toleranceTh = 0.0436332313; //radians
-  double goalX = 0.0;
-  double goatTh = -1.570796327;//-pi/2 rad from testing
+  double toleranceTh = 0.0872664626; // +/- 5 deg (need to test this)
+  double goalX = 0.0356;
+  double goalY = 1.4;
+  double goalTh = 1.570796327; //pi/2 found experimentally
+  double errorThNow = 0;
+  double errorThLast = 0;
 
   geometry_msgs::Twist vel;
+  vel.linear.x = 0.0;
+  vel.linear.y = 0.0;
   vel.linear.z = 0.0;
   vel.angular.x = 0.0;
   vel.angular.y = 0.0;
+  vel.angular.z = 0.0;
 
   ros::AsyncSpinner spinner(4);
   spinner.start();
@@ -240,7 +277,7 @@ int approach_drop(double goalY)
   {
     errorY = goalY - dropYDist;
     errorX = dropXDist - goalX;
-    errorTh = 
+    errorThNow = goalTh - dropTheta;
 
     if ((errorX > 0 && errorX <= toleranceX) || (errorX < 0 && errorX > -toleranceX))
     {
@@ -256,6 +293,26 @@ int approach_drop(double goalY)
     {
       vel.linear.x = 0.05;
       xTol = false;
+    }
+
+    while(xTol == true && isAngled == true)
+    {
+      errorThNow = goalTh - dropTheta;
+      if(errorThNow <= toleranceTh)
+      {
+        isAngled = false;
+        vel.angular.z = 0.0;
+      }
+      else if(errorThLast > errorThNow)
+      {
+        vel.angular.z = 0.1;
+      }
+      else
+      {
+        vel.angular.z = -0.1;
+      }
+      vel_pub.publish(vel);
+      errorThLast = errorThNow;
     }
       
     if ((errorY > 0 && errorY <= toleranceY) || (errorY < 0 && errorY > -toleranceY))
@@ -399,7 +456,7 @@ void lift_arsys_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
   //convert from ar_sys frame to robot frame
   canXDist = msg->pose.position.x * -1;
   canYDist = msg->pose.position.z;
-  canTheta = tf::getYaw(msg->pose.orientation);
+  canTheta = tf::getYaw(msg->pose.orientation) * -1;
 }
 
 void drop_arsys_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
@@ -407,7 +464,7 @@ void drop_arsys_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
   //convert from ar_sys frame to robot frame
   dropXDist = msg->pose.position.x * -1;
   dropYDist = msg->pose.position.z;
-  dropTheta = tf::getYaw(msg->pose.orientation);
+  dropTheta = tf::getYaw(msg->pose.orientation) * -1;
 }
 
 void front_fork_callback(const std_msgs::Bool::ConstPtr& msg)
@@ -463,7 +520,7 @@ int main(int argc, char** argv)
 
   move(dropoff.x, dropoff.y, dropoff.z, dropoff.w);
 
-  approach_drop(1.0);
+  approach_drop();
 
   drop();
 

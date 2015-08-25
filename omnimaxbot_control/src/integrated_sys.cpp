@@ -376,6 +376,8 @@ int lift(double dist)
     fork_pub.publish(goal);
   }
 
+  ros::Duration(0.5).sleep();
+
   int stop = 8;
   ros::Time start = ros::Time::now(); 
 

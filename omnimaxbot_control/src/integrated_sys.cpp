@@ -351,6 +351,8 @@ int lift(double dist)
 {
   ros::Duration(0.5).sleep();
   ros::spinOnce();
+  double offset = 0.29845;
+  double preset = 0.282575;
   double frFrkPs = frontForkPosition;
   double rrFrkPs = rearForkPosition;
   double avgPs = (((((frFrkPs + rrFrkPs)/2)/cpr)/gearRatio)/TPI)/conv; //find the average encoder count position and convert from encoder counts to metres
@@ -364,6 +366,7 @@ int lift(double dist)
   vel.angular.z = 0.0;
 
   std_msgs::Float32 goal;
+  //goal.data = zDist + offset + dist - preset;
   goal.data = avgPs + dist;
   
   fork_pub.publish(goal);

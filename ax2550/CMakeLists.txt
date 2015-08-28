@@ -38,15 +38,20 @@ add_executable(ax2550_node src/ax2550_node.cc)
 target_link_libraries(ax2550_node ax2550 ${catkin_LIBRARIES})
 add_dependencies(ax2550_node ax2550_generate_messages_cpp ${catkin_EXPORTED_LIBRARIES})
 
-## ax2550 Front ROS Node
+## ax2550 ROS Node for the OmniMaxbot
 add_executable(ax2550_node_front src/ax2550_node_front.cc)
 target_link_libraries(ax2550_node_front ax2550 ${catkin_LIBRARIES})
 add_dependencies(ax2550_node_front ax2550_generate_messages_cpp ${catkin_EXPORTED_LIBRARIES})
 
+## ax2550 Front ROS Node
+#add_executable(ax2550_node_front src/ax2550_node_front.cc)
+#target_link_libraries(ax2550_node_front ax2550 ${catkin_LIBRARIES})
+#add_dependencies(ax2550_node_front ax2550_generate_messages_cpp ${catkin_EXPORTED_LIBRARIES})
+
 ## ax2550 Rear ROS Node
-add_executable(ax2550_node_rear src/ax2550_node_rear.cc)
-target_link_libraries(ax2550_node_rear ax2550 ${catkin_LIBRARIES})
-add_dependencies(ax2550_node_rear ax2550_generate_messages_cpp ${catkin_EXPORTED_LIBRARIES})
+#add_executable(ax2550_node_rear src/ax2550_node_rear.cc)
+#target_link_libraries(ax2550_node_rear ax2550 ${catkin_LIBRARIES})
+#add_dependencies(ax2550_node_rear ax2550_generate_messages_cpp ${catkin_EXPORTED_LIBRARIES})
 
 ## ax2550 Omnidirectional Velocity ROS Node
 add_executable(omni_cmd_vel src/omni_cmd_vel.cpp)

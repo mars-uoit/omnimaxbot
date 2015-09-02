@@ -38,10 +38,10 @@
   <node machine="omnimaxbot" pkg="topic_tools" type="relay" name="relay" args="/front_scan /scan"/>
   
   <!-- Launch the rear laser sensor -->
-  <!-- <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node_rear" name="rear_laser" respawn="true"> -->
-  <!--   <param name="host" value="192.168.0.3"/> -->
-  <!--   <param name="frame_id" value="rear_laser"/> -->
-  <!-- </node> -->
+  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node_rear" name="rear_laser" respawn="true">
+    <param name="host" value="192.168.1.3"/>
+    <param name="frame_id" value="rear_laser"/>
+  </node>
   
   <!-- Launch laser scan matcher to simulate the odom frame -->
   <node machine="omnimaxbot" pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node">

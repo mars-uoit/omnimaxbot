@@ -145,8 +145,8 @@ void PID(int actualPosition)
       start_motors(duty_cycle);
     }
     //ROS_INFO_STREAM("duty_cycle: " << duty_cycle);
-    goal_pub.publish(goalReached);
   }
+  goal_pub.publish(goalReached);
 }
 
 int AttachHandler(CPhidgetHandle phid, void *userptr)

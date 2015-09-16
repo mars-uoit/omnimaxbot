@@ -5,10 +5,11 @@
   <!-- Launch the robot's transforms -->
   <node machine="omnimaxbot" pkg="omnimaxbot_description" type="tf_broadcaster" name="tf_broadcaster" respawn="true"/>
 
-  <!-- Launch the robot's kinematics and motor drivers -->
-  <include file="$(find ax2550)/launch/ax2550.launch">
-    <arg name="use_odom" value="false"/>
-  </include>
+  <node machine="omnimaxbot" pkg="ax2550" type="ax2550_node_front" name="ax2550_front" respawn="true"/>
+
+  <node machine="omnimaxbot" pkg="ax2550" type="ax2550_node_rear" name="ax2550_rear" respawn="true"/>
+
+  <node machine="omnimaxbot" pkg="ax2550" type="omni_cmd_vel" name="omni_cmd_vel" respawn="true"/>
   
   <!-- Launch joystick control -->
   <include file="$(find omnimaxbot_teleop)/launch/teleop.launch"/>
@@ -35,13 +36,17 @@
   </node>
 
   <!-- copy front_scan to scan -->
-  <node machine="omnimaxbot" pkg="topic_tools" type="relay" name="relay" args="/front_scan /scan"/>
+  <node machine="omnimaxbot" pkg="topic_tools" type="relay" name="fornt_relay" args="/front_scan /scan"/>
   
   <!-- Launch the rear laser sensor -->
   <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node_rear" name="rear_laser" respawn="true">
     <param name="host" value="192.168.1.3"/>
     <param name="frame_id" value="rear_laser"/>
+    <remap from="scan" to="rear_scan"/>
   </node>
+
+  <!-- copy front_scan to scan -->
+  <node machine="omnimaxbot" pkg="topic_tools" type="relay" name="rear_relay" args="/rear_scan /scan"/>
   
   <!-- Launch laser scan matcher to simulate the odom frame -->
   <node machine="omnimaxbot" pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node">
@@ -127,10 +132,6 @@
   <node machine="omnimaxbot" pkg="phidgets" type="motor_control_hc_1065" name="rear_fork_driver" respawn="true">
     <param name="serial" value="299104"/> 
   </node> -->
-
-  <!-- <node pkg="omnimaxbot_control" type="omnimaxbot_move_node" name="move_test" output="screen"/> -->
-
-  <!-- <node pkg="omnimaxbot_control" type="omnimaxbot_approach_node" name="approach_test" output="screen"/> -->
 
   <node pkg="omnimaxbot_control" type="omnimaxbot_control_node" name="integrated_test" output="screen"/>
 	

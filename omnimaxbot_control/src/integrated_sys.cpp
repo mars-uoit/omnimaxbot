@@ -21,6 +21,7 @@ ros::Publisher vel_pub;
 //global variables to hold can position
 float canXDist;
 float canYDist;
+float canZDist;
 double canTheta;
 
 //global variables to hold drop position
@@ -195,6 +196,8 @@ int approach_can(double goalY)
   double goalX = 0.0472;
 
   geometry_msgs::Twist vel;
+  vel.linear.x = 0.0;
+  vel.linear.y = 0.0;
   vel.linear.z = 0.0;
   vel.angular.x = 0.0;
   vel.angular.y = 0.0;
@@ -239,6 +242,11 @@ int approach_can(double goalY)
     }
     vel_pub.publish(vel); 
   }
+
+  vel.linear.x = 0.0;
+  vel.linear.y = 0.0;
+  
+  vel_pub.publish(vel);
 
   spinner.stop();
 
@@ -331,6 +339,12 @@ int approach_drop()
     vel_pub.publish(vel); 
   }
 
+  vel.linear.x = 0.0;
+  vel.linear.y = 0.0;
+  vel.angular.z = 0.0;
+
+  vel_pub.publish(vel);
+
   spinner.stop();
 
   return 0;
@@ -349,52 +363,61 @@ void rear_fork_height_callback(const phidgets::encoder_params::ConstPtr& msg)
 //tell forks to raise/lower by a certain amount
 int lift(double dist)
 {
-  ros::Duration(0.5).sleep();
+  ros::Duration(1.0).sleep();
   ros::spinOnce();
   double offset = 0.29845; 
-  double preset = 0.276225;
+  double preset = 0.30384301;
   double frFrkPs = frontForkPosition;
   double rrFrkPs = rearForkPosition;
   double avgPs = (((((frFrkPs + rrFrkPs)/2)/cpr)/gearRatio)/TPI)/conv; //find the average encoder count position and convert from encoder counts to metres
+  bool forksMetGoal = false;
 
   geometry_msgs::Twist vel;
   vel.linear.x = 0.0;
-  vel.linear.y = 0.1;
+  vel.linear.y = 0.0;
   vel.linear.z = 0.0;
   vel.angular.x = 0.0;
   vel.angular.y = 0.0;
   vel.angular.z = 0.0;
 
   std_msgs::Float32 goal;
-  //goal.data = zDist + offset + dist - preset;
-  goal.data = avgPs + dist;
+  //goal.data = canZDist + offset + dist - preset;
+  goal.data = dist;
   
   fork_pub.publish(goal);
+
+  ros::Duration(0.5).sleep();
 
   ros::AsyncSpinner spinner(4);
   spinner.start();
 
-  while (ros::ok() && frontForkGoalReached == false && rearForkGoalReached == false)
+  forksMetGoal = false;
+
+  while (ros::ok() && forksMetGoal == false)
   {
-    fork_pub.publish(goal);
+    ROS_INFO_STREAM("forksMetGoal start: " << forksMetGoal);
+    if(frontForkGoalReached == true && rearForkGoalReached == true)
+    {
+      forksMetGoal = true;
+    }
+    else
+    {
+      fork_pub.publish(goal);
+      forksMetGoal = false;
+    }
+    ROS_INFO_STREAM("frontForkGoalReached: " << frontForkGoalReached);
+    ROS_INFO_STREAM("rearForkGoalReached: " << rearForkGoalReached);
+    ROS_INFO_STREAM("forksMetGoal end: " << forksMetGoal);
   }
 
-  ros::Duration(0.5).sleep();
-
-  int stop = 8;
-  ros::Time start = ros::Time::now(); 
-
-  while(ros::ok() && (ros::Time::now() - start).toSec() < stop)
-  {
-    vel_pub.publish(vel);
-  }  
+  ros::Duration(0.5).sleep(); 
 
   spinner.stop();
 
   return 0;
 }
 
-//tell forks to lower the can to 2" below the start height of the forks
+/*tell forks to lower the can to 2" below the start height of the forks
 int drop()
 {
   ros::Duration(0.5).sleep();
@@ -408,21 +431,22 @@ int drop()
 
   fork_pub.publish(goal);
 
-  ros::Duration(0.1).sleep();
+  ros::Duration(0.5).sleep();
 
   while (ros::ok() && frontForkGoalReached == false && rearForkGoalReached == false)
   {
     fork_pub.publish(goal);
   }
 
-  ros::Duration(0.5).sleep();
+  ros::Duration(1).sleep();
 
   spinner.stop();
 
   return 0;
 }
+*/
 
-//returns forks to their 0 position (pickup height)
+/*returns forks to their 0 position (pickup height)
 int prep()
 {
   ros::Duration(0.5).sleep();
@@ -455,12 +479,14 @@ int prep()
 
   return 0;
 }
+*/
 
 void lift_arsys_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
   //convert from ar_sys frame to robot frame
   canXDist = msg->pose.position.x * -1;
   canYDist = msg->pose.position.z;
+  canZDist = msg->pose.position.y * -1;
   canTheta = tf::getYaw(msg->pose.orientation) * -1;
 }
 
@@ -515,25 +541,29 @@ int main(int argc, char** argv)
 
   move(pickup1.x, pickup1.y, pickup1.z, pickup1.w);
 
-  prep();
+  //prep();
 
   line_up_x();
 
   approach_can(0.25); //found experimentally
 
-  lift(0.0508); //lift 2 inches
+  lift(0.0762); //lift 3 inches
 
-  move(dropoff.x, dropoff.y, dropoff.z, dropoff.w);
+  //move(dropoff.x, dropoff.y, dropoff.z, dropoff.w);
 
-  approach_drop();
+  //approach_drop();
 
-  drop();
+  //lift(0.0);
 
-  approach_can(0.90);
+  //drop();
+
+  //approach_can(0.90);
 
   move(init.x, init.y, init.z, init.w);
 
-  prep();
+  //prep();
+
+  lift(0.0);
 
   return 0;
 }

@@ -40,6 +40,10 @@
     <param name="transform_tolerance" value="1.0"/>
     <param name="recovery_alpha_slow" value="0.0"/>
     <param name="recovery_alpha_fast" value="0.0"/>
+    <!-- Add initial point for static obstacle test -->
+    <!-- param name="initial_pose_x" value="-0.376755772039"/ -->
+    <!-- param name="initial_pose_y" value="-1.71221710795"/ -->
+    <!-- param name="initial_pose_a" value="3.15"/ -->
     <remap from="scan" to="$(arg scan_topic)"/>    
   </node>
 

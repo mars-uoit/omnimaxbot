@@ -5,8 +5,13 @@
   <!-- Launch the robot's transforms -->
   <node machine="omnimaxbot" pkg="omnimaxbot_description" type="tf_broadcaster" name="tf_broadcaster" respawn="true"/>
 
-  <!-- Launch the robot's kinematics and motor drivers -->
-  <include file="$(find ax2550)/launch/ax2550.launch"/>
+  <node machine="omnimaxbot" pkg="ax2550" type="ax2550_node_front" name="ax2550_front" respawn="true"/>
+
+  <node machine="omnimaxbot" pkg="ax2550" type="ax2550_node_rear" name="ax2550_rear" respawn="true"/>
+
+  <node machine="omnimaxbot" pkg="ax2550" type="omni_cmd_vel" name="omni_cmd_vel" respawn="true"/>
+
+  <node machine="omnimaxbot" pkg="ax2550" type="omni_odom" name="omni_odom" respawn="true"/>
   
   <!-- Launch joystick control -->
   <include file="$(find omnimaxbot_teleop)/launch/teleop.launch"/>
@@ -28,17 +33,24 @@
     <param name="host" value="192.168.1.2"/>
     <param name="frame_id" value="front_laser"/>
   </node>
-	
+
   <!-- Launch robot pose ekf -->
-  <node machine="omnimaxbot" pkg="robot_pose_ekf" name="robot_pose_ekf" type="robot_pose_ekf">
+  <node pkg="robot_pose_ekf" name="robot_pose_ekf" type="robot_pose_ekf">
+    <param name="freq" value="30.0"/>
+    <!-- <param name="sensor_timeout" value="1.0"/> -->
+    <param name="odom_used" value="true"/>
+    <param name="imu_used" value="true"/>
+    <param name="vo_used" value="false"/>
+    <param name="debug" value="false"/>
+    <param name="self_diagnose" value="false"/>
+    <param name="output_frame" value="odom"/>
     <remap from="odom" to="/omni_odom"/>
     <remap from="imu_data" to="/imu/data"/>
-    <rosparam file="$(find omnimaxbot_2d_nav)/config/ekf_params.yaml"/>
-    <remap from="robot_pose_ekf/odom_combined" to="/odom"/>
+    <remap from="odom_combined" to="/odom"/>
   </node>
 
   <!-- Load the map -->	
-  <node machine="omnimaxbot" pkg="map_server" type="map_server" name="map_server" args="/home/nick/my_map.yaml"/>
+  <node machine="omnimaxbot" pkg="map_server" type="map_server" name="map_server" args="/home/marslab/catkin_ws/src/omnimaxbot/omnimaxbot_2d_nav/maps/UA1460_hector_512.yaml"/>
   
   <!-- Launch AMCL -->
   <include file="$(find omnimaxbot_2d_nav)/launch/amcl.launch"/>
@@ -49,13 +61,19 @@
     <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/costmap_common_params.yaml" command="load" ns="local_costmap"/>
     <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/local_costmap_params.yaml" command="load"/>
     <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/global_costmap_params.yaml" command="load"/>
-    <!-- <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/base_local_planner_params.yaml" command="load"/> -->
-    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/dwa_local_planner_params.yaml" command="load"/>
-    <remap from="/cmd_vel" to="/omni_cmd_vel" />
-    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/base_local_planner_params.yaml" command="load"/>
+    <!-- <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/dwa_local_planner_params.yaml" command="load"/> -->
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/global_planner_params.yaml" command="load"/>
+    <remap from="/cmd_vel" to="/omni_cmd_vel"/>
+    <!-- <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/> -->
+    <param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS"/>
+    <param name="base_global_planner" value="global_planner/GlobalPlanner"/>
   </node>
 
   <!-- Launch rviz -->
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find omnimaxbot_2d_nav)/rviz/test.rviz" respawn="false"/>
 	
 </launch>
+	
+
+

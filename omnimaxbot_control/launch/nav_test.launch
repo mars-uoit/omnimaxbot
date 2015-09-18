@@ -5,15 +5,24 @@
   <!-- Launch the robot's transforms -->
   <node machine="omnimaxbot" pkg="omnimaxbot_description" type="tf_broadcaster" name="tf_broadcaster" respawn="true"/>
 
-  <!-- Launch the robot's kinematics and motor drivers -->
-  <include file="$(find ax2550)/launch/ax2550.launch"/>
+  <node machine="omnimaxbot" pkg="ax2550" type="ax2550_omnimaxbot" name="ax2550_front" respawn="true">
+    <param name="serial_port" value="/dev/ttyS0"/>
+    <param name="odom_frame_id" value="front_odom"/>
+    <remap from="cmd_vel" to="/omnimaxbot/front/cmd_vel"/>
+    <remap from="/ax2550/encoders" to="/omnimaxbot/front/encoders"/>
+  </node>
+
+  <node machine="omnimaxbot" pkg="ax2550" type="ax2550_omnimaxbot" name="ax2550_rear" respawn="true">
+    <param name="serial_port" value="/dev/ttyS1"/>
+    <param name="odom_frame_id" value="rear_odom"/>
+    <remap from="cmd_vel" to="/omnimaxbot/rear/cmd_vel"/>
+    <remap from="/ax2550/encoders" to="/omnimaxbot/rear/encoders"/>
+  </node>
+
+  <node machine="omnimaxbot" pkg="ax2550" type="omni_cmd_vel" name="omni_cmd_vel" respawn="true"/>
   
   <!-- Launch joystick control -->
-  <include file="$(find omnimaxbot_teleop)/launch/teleop.launch">
-    <arg name="x_drive_scale" default="0.5"/>
-    <arg name="y_drive_scale" default="0.0"/>
-    <arg name="turn_scale" default="0.5"/>
-  </include>
+  <include file="$(find omnimaxbot_teleop)/launch/teleop.launch"/>
   
   <!-- Connect to IMU through Arduino -->
   <node machine="omnimaxbot" pkg="rosserial_python" type="serial_node.py" name="ros_arduino_imu" output="screen" respawn="true">
@@ -40,7 +49,7 @@
   </node>
   
   <!-- Simulate odometry msg from scan matcher -->
-  <node machine="omnimaxbot" pkg="omnimaxbot_control" type="laser_scan_odom_node" name="laser_scan_odom_node"/>
+  <node machine="omnimaxbot" pkg="laser_scan_matcher" type="laser_scan_odometry_node" name="laser_scan_odometry_node"/>
 
   <!-- Load the map -->	
   <node pkg="map_server" type="map_server" name="map_server" args="/home/nick/UA1460_hector_512.yaml"/>
@@ -54,11 +63,12 @@
     <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/costmap_common_params.yaml" command="load" ns="local_costmap"/>
     <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/local_costmap_params.yaml" command="load"/>
     <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/global_costmap_params.yaml" command="load"/>
-    <!-- <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/base_local_planner_params.yaml" command="load"/> -->
-    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/dwa_local_planner_params.yaml" command="load"/>
+    <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/base_local_planner_params.yaml" command="load"/>
+    <!-- <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/dwa_local_planner_params.yaml" command="load"/> -->
     <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/global_planner_params.yaml" command="load"/>
     <remap from="/cmd_vel" to="/omni_cmd_vel"/>
-    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
+    <!-- <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/> -->
+    <param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS"/>
     <param name="base_global_planner" value="global_planner/GlobalPlanner"/>
   </node>
 

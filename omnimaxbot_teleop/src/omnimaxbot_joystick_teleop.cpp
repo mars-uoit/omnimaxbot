@@ -21,13 +21,6 @@ void planCallback(const geometry_msgs::Twist::ConstPtr& plan)
   plan_th = plan->angular.z;
 }
 
-void plan2Callback(const geometry_msgs::Twist::ConstPtr& plan2)
-{
-  plan2_x = plan2->linear.x;
-  plan2_y = plan2->linear.y;
-  plan2_th = plan2->angular.z;
-}
-
 void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
   int linear_y = 0;
@@ -37,14 +30,11 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
   int deadman_button = 0;
   int plan_button = 0;
   int plan = 1;
-  int plan2_button = 0;
-  int plan2 = 2;
   
   geometry_msgs::Twist vel;
   
   deadman_button = joy->buttons[deadman];
   plan_button = joy->buttons[plan];
-  plan2_button = joy->buttons[plan2];
   
   if(deadman_button == 1)
   {
@@ -63,15 +53,6 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
     vel.angular.x = 0.0;
     vel.angular.y = 0.0;
     vel.angular.z = plan_th;
-  }
-  else if(plan2_button == 1)
-  {
-    vel.linear.x = plan2_x;
-    vel.linear.y = plan2_y;
-    vel.linear.z = 0.0;
-    vel.angular.x = 0.0;
-    vel.angular.y = 0.0;
-    vel.angular.z = plan2_th;
   }
   else
   {
@@ -93,7 +74,7 @@ int main(int argc, char** argv)
   ros::NodeHandle n;
   
   // get parameters
-  n.param("turn_scale", turn_scale, 1.0);
+  n.param("turn_scale", turn_scale, 0.5);
   n.param("x_drive_scale", x_drive_scale, 0.5);
   n.param("y_drive_scale", y_drive_scale, 0.5);
   
@@ -102,7 +83,6 @@ int main(int argc, char** argv)
   
   // subscriber setup
   ros::Subscriber planned_cmd_vel = n.subscribe<geometry_msgs::Twist>("omni_cmd_vel", 10, planCallback);
-  ros::Subscriber planned_cmd_vel2 = n.subscribe<geometry_msgs::Twist>("omni_cmd_vel_2", 10, plan2Callback);
   ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 1, joyCallback);
   
   ros::spin();

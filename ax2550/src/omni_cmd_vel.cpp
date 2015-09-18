@@ -10,7 +10,8 @@ ros::Publisher rear_cmd_vel_pub;
 double wheel_radius = 0.125;
 
 // Max speed = 1.77 m/s = 6.37 km/hr
-// Limiting speed to 0.5 m/s
+// Limiting speed to 1.5 m/s
+// That is 114.59 rpm, roughly 107 input
 
 static double REL_MAX = 35.0;
 static int GEAR_RATIO = 20;

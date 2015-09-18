@@ -1,4 +1,4 @@
-video_mode: format7_mode3"
+video_mode: format7_mode3
 format7_color_coding: raw16
 bayer_pattern: grbg
 bayer_method: 

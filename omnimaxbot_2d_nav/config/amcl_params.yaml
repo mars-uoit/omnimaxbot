@@ -3,4 +3,7 @@ update_min_a: 0.1
 use_map_topic: true
 odom_model_type: omni
 base_frame_id: base_footprint
+initial_pose_x: -0.376755772039
+initial_pose_y: -1.71221710795
+initial_pose_a: 3.15
 

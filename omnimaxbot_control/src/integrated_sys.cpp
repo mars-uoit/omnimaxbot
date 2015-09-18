@@ -51,8 +51,15 @@ struct poses
 
 void set_poses()
 {
+/*
   pickup1.x = 3.4188326718;
   pickup1.y = -0.443406369627;
+  pickup1.z = 0.00252242960762;
+  pickup1.w = 0.999996818669;
+*/
+
+  pickup1.x = 2.90791396724;
+  pickup1.y = -0.453389390608;
   pickup1.z = 0.00252242960762;
   pickup1.w = 0.999996818669;
 
@@ -61,15 +68,29 @@ void set_poses()
   pickup2.z = 0.00252242960762;
   pickup2.w = 0.999996818669;
 
+/*
   dropoff.x = 2.05338816726;
   dropoff.y = 0.210103696523;
   dropoff.z = 0.99999889778;
   dropoff.w = 0.00148473533467;
+*/
 
+  dropoff.x = 1.7898697042;
+  dropoff.y = 0.366474746524;
+  dropoff.z = 0.99999889778;
+  dropoff.w = 0.00148473533467;
+
+/*
   init.x = 0.00301826748789;
   init.y = -0.156723602908;
   init.z = 0.00796528261361;
   init.w = 0.999968276633;
+*/
+
+  init.x = -0.376755772039;
+  init.y = -1.71221710795;
+  init.z = -0.999879200489;
+  init.w = 0.0155429865115;
 }
 
 //Takes an x position, y position, and orientation and sends it to move_base. These must be in the map frame
@@ -395,7 +416,7 @@ int lift(double dist)
 
   while (ros::ok() && forksMetGoal == false)
   {
-    ROS_INFO_STREAM("forksMetGoal start: " << forksMetGoal);
+    //ROS_INFO_STREAM("forksMetGoal start: " << forksMetGoal);
     if(frontForkGoalReached == true && rearForkGoalReached == true)
     {
       forksMetGoal = true;
@@ -405,9 +426,9 @@ int lift(double dist)
       fork_pub.publish(goal);
       forksMetGoal = false;
     }
-    ROS_INFO_STREAM("frontForkGoalReached: " << frontForkGoalReached);
-    ROS_INFO_STREAM("rearForkGoalReached: " << rearForkGoalReached);
-    ROS_INFO_STREAM("forksMetGoal end: " << forksMetGoal);
+    //ROS_INFO_STREAM("frontForkGoalReached: " << frontForkGoalReached);
+    //ROS_INFO_STREAM("rearForkGoalReached: " << rearForkGoalReached);
+    //ROS_INFO_STREAM("forksMetGoal end: " << forksMetGoal);
   }
 
   ros::Duration(0.5).sleep(); 
@@ -416,35 +437,6 @@ int lift(double dist)
 
   return 0;
 }
-
-/*tell forks to lower the can to 2" below the start height of the forks
-int drop()
-{
-  ros::Duration(0.5).sleep();
-  ros::spinOnce();
-
-  std_msgs::Float32 goal;
-  goal.data = -0.0508; //found experimentally 
-
-  ros::AsyncSpinner spinner(4);
-  spinner.start();
-
-  fork_pub.publish(goal);
-
-  ros::Duration(0.5).sleep();
-
-  while (ros::ok() && frontForkGoalReached == false && rearForkGoalReached == false)
-  {
-    fork_pub.publish(goal);
-  }
-
-  ros::Duration(1).sleep();
-
-  spinner.stop();
-
-  return 0;
-}
-*/
 
 /*returns forks to their 0 position (pickup height)
 int prep()
@@ -480,6 +472,32 @@ int prep()
   return 0;
 }
 */
+
+int reverse()
+{
+  geometry_msgs::Twist vel;
+  vel.linear.x = 0.0;
+  vel.linear.y = 0.1;
+  vel.linear.z = 0.0;
+  vel.angular.x = 0.0;
+  vel.angular.y = 0.0;
+  vel.angular.z = 0.0;
+
+  int stop = 8;
+  ros::Time start = ros::Time::now(); 
+
+  ros::AsyncSpinner spinner(4);
+  spinner.start();
+
+  while(ros::ok() && (ros::Time::now() - start).toSec() < stop)
+  {
+    vel_pub.publish(vel);
+  }  
+
+  spinner.stop();
+
+  return 0; 
+}
 
 void lift_arsys_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
@@ -549,13 +567,13 @@ int main(int argc, char** argv)
 
   lift(0.0762); //lift 3 inches
 
+  reverse();
+
   //move(dropoff.x, dropoff.y, dropoff.z, dropoff.w);
 
   //approach_drop();
 
   //lift(0.0);
-
-  //drop();
 
   //approach_can(0.90);
 

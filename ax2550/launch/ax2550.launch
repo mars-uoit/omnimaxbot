@@ -3,9 +3,19 @@
   
   <arg name="use_odom" default="false"/>
 
-  <node machine="omnimaxbot" pkg="ax2550" type="ax2550_node_front" name="ax2550_front" respawn="true"/>
+  <node machine="omnimaxbot" pkg="ax2550" type="ax2550_omnimaxbot" name="ax2550_front" respawn="true">
+    <param name="serial_port" value="/dev/ttyS0"/>
+    <param name="odom_frame_id" value="front_odom"
+    <remap from="cmd_vel" to="/omnimaxbot/front/cmd_vel"/>
+    <remap from="/ax2550/encoders" to="/omnimaxbot/front/encoders"/>
+  </node>
 
-  <node machine="omnimaxbot" pkg="ax2550" type="ax2550_node_rear" name="ax2550_rear" respawn="true"/>
+  <node machine="omnimaxbot" pkg="ax2550" type="ax2550_omnimaxbot" name="ax2550_rear" respawn="true">
+    <param name="serial_port" value="/dev/ttyS1"/>
+    <param name="odom_frame_id" value="rear_odom"
+    <remap from="cmd_vel" to="/omnimaxbot/rear/cmd_vel"/>
+   <remap from="/ax2550/encoders" to="/omnimaxbot/rear/encoders"/>
+  </node>
 
   <node machine="omnimaxbot" pkg="ax2550" type="omni_cmd_vel" name="omni_cmd_vel" respawn="true"/>
   

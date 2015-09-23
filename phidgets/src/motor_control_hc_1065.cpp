@@ -101,6 +101,11 @@ void PID(int actualPosition)
   goalReached.data = false;
   double dt = 0.008;
 
+  if((ros::Time::now() - last_command).toSec() > 2.0)
+  {
+    timedOut = true;
+  }
+
   if(timedOut == false)
   {
     double error = targetPosition - actualPosition;
@@ -145,6 +150,10 @@ void PID(int actualPosition)
       start_motors(duty_cycle);
     }
     //ROS_INFO_STREAM("duty_cycle: " << duty_cycle);
+  }
+  else
+  {
+    goalReached.data = false;
   }
   goal_pub.publish(goalReached);
 }
@@ -341,6 +350,10 @@ void positionCommandCallback(const std_msgs::Float32::ConstPtr& msg)
   double gear_ratio = 13.0;
   double TPI = 10.0; //threads per inch
   double cpr = 300.0; //from encoder
+
+  std_msgs::Bool goalReached;
+  goalReached.data = false;
+  goal_pub.publish(goalReached);
 
   double unroundedGoal = rawPosition * conv * gear_ratio * TPI * cpr;
   int hold = (int)unroundedGoal;

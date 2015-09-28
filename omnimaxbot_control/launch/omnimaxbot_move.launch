@@ -100,7 +100,7 @@
   <!-- </node> -->
 
   <!-- Load the map -->	
-  <node machine="omnimaxbot" pkg="map_server" type="map_server" name="map_server" args="/home/marslab/catkin_ws/src/omnimaxbot/omnimaxbot_2d_nav/maps/UA1460_hector_512.yaml"/>
+  <node machine="omnimaxbot" pkg="map_server" type="map_server" name="map_server" args="/home/marslab/catkin_ws/src/omnimaxbot/omnimaxbot_2d_nav/maps/UA1460_512_third.yaml"/>
   
   <!-- Launch AMCL -->
   <include file="$(find omnimaxbot_2d_nav)/launch/amcl.launch"/>

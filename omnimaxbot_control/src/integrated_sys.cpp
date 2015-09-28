@@ -47,50 +47,24 @@ struct poses
   double y;
   double z;
   double w;
-}pickup1, pickup2, dropoff, init;
+}pickup1, dropoff, init;
 
 void set_poses()
 {
-/*
-  pickup1.x = 3.4188326718;
-  pickup1.y = -0.443406369627;
-  pickup1.z = 0.00252242960762;
-  pickup1.w = 0.999996818669;
-*/
+  pickup1.x = 4.06052467576;
+  pickup1.y = 1.43293669096;
+  pickup1.z = -0.00870027222147;
+  pickup1.w = 0.999962151915;
 
-  pickup1.x = 2.90791396724;
-  pickup1.y = -0.453389390608;
-  pickup1.z = 0.00252242960762;
-  pickup1.w = 0.999996818669;
+  dropoff.x = 2.23452364634;
+  dropoff.y = 1.53506418211;
+  dropoff.z = -0.999963292419;
+  dropoff.w = 0.00856818618366;
 
-  pickup2.x = 3.4188326718;
-  pickup2.y = -0.443406369627;
-  pickup2.z = 0.00252242960762;
-  pickup2.w = 0.999996818669;
-
-/*
-  dropoff.x = 2.05338816726;
-  dropoff.y = 0.210103696523;
-  dropoff.z = 0.99999889778;
-  dropoff.w = 0.00148473533467;
-*/
-
-  dropoff.x = 1.7898697042;
-  dropoff.y = 0.366474746524;
-  dropoff.z = 0.99999889778;
-  dropoff.w = 0.00148473533467;
-
-/*
-  init.x = 0.00301826748789;
-  init.y = -0.156723602908;
-  init.z = 0.00796528261361;
-  init.w = 0.999968276633;
-*/
-
-  init.x = -0.376755772039;
-  init.y = -1.71221710795;
-  init.z = -0.999879200489;
-  init.w = 0.0155429865115;
+  init.x = 0.0529914905167;
+  init.y = 1.15482337803;
+  init.z = -0.0102563308521;
+  init.w = 0.999947402455;
 }
 
 //Takes an x position, y position, and orientation and sends it to move_base. These must be in the map frame
@@ -285,8 +259,8 @@ int approach_drop()
   double toleranceX = 0.0127;
   double toleranceY = 0.025;
   double toleranceTh = 0.0872664626; // +/- 5 deg (need to test this)
-  double goalX = 0.0356;
-  double goalY = 1.4;
+  double goalX = 0.0206; //0.0356;
+  double goalY = 1.7915; //1.4;
   double goalTh = 1.570796327; //pi/2 found experimentally
   double errorThNow = 0;
   double errorThLast = 0;
@@ -308,23 +282,7 @@ int approach_drop()
     errorX = dropXDist - goalX;
     errorThNow = goalTh - dropTheta;
 
-    if ((errorX > 0 && errorX <= toleranceX) || (errorX < 0 && errorX > -toleranceX))
-    {
-      vel.linear.x = 0.0;
-      xTol = true;
-    }
-    else if (errorX < 0)
-    {
-      vel.linear.x = -0.05;
-      xTol = false;
-    }
-    else
-    {
-      vel.linear.x = 0.05;
-      xTol = false;
-    }
-
-    while(xTol == true && isAngled == true)
+    while(isAngled == true)
     {
       errorThNow = goalTh - dropTheta;
       if(errorThNow <= toleranceTh)
@@ -343,7 +301,23 @@ int approach_drop()
       vel_pub.publish(vel);
       errorThLast = errorThNow;
     }
-      
+
+    if ((errorX > 0 && errorX <= toleranceX) || (errorX < 0 && errorX > -toleranceX))
+    {
+      vel.linear.x = 0.0;
+      xTol = true;
+    }
+    else if (errorX < 0)
+    {
+      vel.linear.x = -0.05;
+      xTol = false;
+    }
+    else
+    {
+      vel.linear.x = 0.05;
+      xTol = false;
+    }
+  
     if ((errorY > 0 && errorY <= toleranceY) || (errorY < 0 && errorY > -toleranceY))
     {
       isClose = true;
@@ -438,41 +412,6 @@ int lift(double dist)
   return 0;
 }
 
-/*returns forks to their 0 position (pickup height)
-int prep()
-{
-  ros::Duration(0.5).sleep();
-  ros::spinOnce();
-  double frFrkPs = frontForkPosition;
-  double rrFrkPs = rearForkPosition;
-  double avgPs = (((((frFrkPs + rrFrkPs)/2)/cpr)/gearRatio)/TPI)/conv; //find the average encoder count position and convert from encoder counts to metres
-  
-  if(avgPs == 0)
-  {
-    //do nothing
-  }
-  else
-  {
-    std_msgs::Float32 goal;
-    goal.data = 0;
-  
-    fork_pub.publish(goal);
-
-    ros::AsyncSpinner spinner(4);
-    spinner.start();
-
-    while (ros::ok() && frontForkGoalReached == false && rearForkGoalReached == false)
-    {
-      fork_pub.publish(goal);
-    }
-
-    spinner.stop();
-  }
-
-  return 0;
-}
-*/
-
 int reverse()
 {
   geometry_msgs::Twist vel;
@@ -559,8 +498,6 @@ int main(int argc, char** argv)
 
   move(pickup1.x, pickup1.y, pickup1.z, pickup1.w);
 
-  //prep();
-
   line_up_x();
 
   approach_can(0.25); //found experimentally
@@ -569,19 +506,17 @@ int main(int argc, char** argv)
 
   reverse();
 
-  //move(dropoff.x, dropoff.y, dropoff.z, dropoff.w);
+  move(dropoff.x, dropoff.y, dropoff.z, dropoff.w);
 
-  //approach_drop();
+  approach_drop();
 
-  //lift(0.0);
+  lift(0.0);
 
-  //approach_can(0.90);
+  approach_can(0.90);
 
   move(init.x, init.y, init.z, init.w);
 
-  //prep();
-
-  lift(0.0);
+  //lift(0.0);
 
   return 0;
 }

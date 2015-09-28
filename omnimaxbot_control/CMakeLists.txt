@@ -109,9 +109,9 @@ include_directories(
 
 ## Declare a cpp executable
 add_executable(omnimaxbot_control_node src/integrated_sys.cpp)
-add_executable(omnimaxbot_approach_node src/approach.cpp)
-add_executable(omnimaxbot_move_node src/move.cpp)
-add_executable(get_yaw_node src/get_angles.cpp)
+#add_executable(omnimaxbot_approach_node src/approach.cpp)
+#add_executable(omnimaxbot_move_node src/move.cpp)
+#add_executable(get_yaw_node src/get_angles.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -119,9 +119,9 @@ add_executable(get_yaw_node src/get_angles.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(omnimaxbot_control_node ${catkin_LIBRARIES})
-target_link_libraries(omnimaxbot_approach_node ${catkin_LIBRARIES})
-target_link_libraries(omnimaxbot_move_node ${catkin_LIBRARIES})
-target_link_libraries(get_yaw_node ${catkin_LIBRARIES})
+#target_link_libraries(omnimaxbot_approach_node ${catkin_LIBRARIES})
+#target_link_libraries(omnimaxbot_move_node ${catkin_LIBRARIES})
+#target_link_libraries(get_yaw_node ${catkin_LIBRARIES})
 
 #############
 ## Install ##

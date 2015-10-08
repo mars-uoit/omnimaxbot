@@ -1,35 +1,33 @@
 <launch>
 
-  <machine name="omnimaxbot" address="omnimaxbot" env-loader="~/catkin_ws/src/omnimaxbot/omnimaxbot_control/ros_env.sh" user="marslab"/>
-
   <!-- Launch the robot's transforms -->
-  <node machine="omnimaxbot" pkg="omnimaxbot_description" type="tf_broadcaster" name="tf_broadcaster" respawn="true"/>
+  <node pkg="omnimaxbot_description" type="tf_broadcaster" name="tf_broadcaster" respawn="true"/>
 
-  <node machine="omnimaxbot" pkg="ax2550" type="ax2550_node_front" name="ax2550_front" respawn="true"/>
+  <node pkg="ax2550" type="ax2550_node_front" name="ax2550_front" respawn="true"/>
 
-  <node machine="omnimaxbot" pkg="ax2550" type="ax2550_node_rear" name="ax2550_rear" respawn="true"/>
+  <node pkg="ax2550" type="ax2550_node_rear" name="ax2550_rear" respawn="true"/>
 
-  <node machine="omnimaxbot" pkg="ax2550" type="omni_cmd_vel" name="omni_cmd_vel" respawn="true"/>
+  <node pkg="ax2550" type="omni_cmd_vel" name="omni_cmd_vel" respawn="true"/>
 
-  <node machine="omnimaxbot" pkg="ax2550" type="omni_odom" name="omni_odom" respawn="true"/>
+  <node pkg="ax2550" type="omni_odom" name="omni_odom" respawn="true"/>
   
   <!-- Launch joystick control -->
   <include file="$(find omnimaxbot_teleop)/launch/teleop.launch"/>
   
   <!-- Connect to IMU through Arduino -->
-  <node machine="omnimaxbot" pkg="rosserial_python" type="serial_node.py" name="ros_arduino_imu" output="screen" respawn="true">
+  <node pkg="rosserial_python" type="serial_node.py" name="ros_arduino_imu" output="screen" respawn="true">
     <param name="~port" value="/dev/ttyACM0" />
     <param name="~baud" value="115200" />
   </node> 
 
   <!-- Get raw IMU data -->
-  <node machine="omnimaxbot" pkg="ros_arduino_imu" type="raw_imu_bridge_node" name="raw_imu_bridge" output="screen" respawn="false" />
+  <node pkg="ros_arduino_imu" type="raw_imu_bridge_node" name="raw_imu_bridge" output="screen" respawn="false" />
 
   <!-- Filter IMU data -->
-  <node machine="omnimaxbot" pkg="imu_filter_madgwick" type="imu_filter_node" name="imu_filter_madgwick" output="screen" respawn="false" />
+  <node pkg="imu_filter_madgwick" type="imu_filter_node" name="imu_filter_madgwick" output="screen" respawn="false" />
   
   <!--Launch the front laser sensor -->
-  <node machine="omnimaxbot" pkg="lms1xx" type="LMS1xx_node_front" name="front_laser" respawn="true">
+  <node pkg="lms1xx" type="LMS1xx_node_front" name="front_laser" respawn="true">
     <param name="host" value="192.168.1.2"/>
     <param name="frame_id" value="front_laser"/>
   </node>
@@ -50,13 +48,13 @@
   </node>
 
   <!-- Load the map -->	
-  <node machine="omnimaxbot" pkg="map_server" type="map_server" name="map_server" args="/home/marslab/catkin_ws/src/omnimaxbot/omnimaxbot_2d_nav/maps/UA1460_hector_512.yaml"/>
+  <node pkg="map_server" type="map_server" name="map_server" args="/home/marslab/catkin_ws/src/omnimaxbot/omnimaxbot_2d_nav/maps/UA1460_hector_512.yaml"/>
   
   <!-- Launch AMCL -->
   <include file="$(find omnimaxbot_2d_nav)/launch/amcl.launch"/>
 
   <!-- Launch move base -->
-  <node machine="omnimaxbot" pkg="move_base" type="move_base" respawn="true" name="move_base" output="screen">
+  <node pkg="move_base" type="move_base" respawn="true" name="move_base" output="screen">
     <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/costmap_common_params.yaml" command="load" ns="global_costmap"/>
     <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/costmap_common_params.yaml" command="load" ns="local_costmap"/>
     <rosparam file="$(find omnimaxbot_2d_nav)/config/move_base_params/local_costmap_params.yaml" command="load"/>

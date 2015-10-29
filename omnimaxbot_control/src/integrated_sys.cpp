@@ -376,8 +376,8 @@ int lift(double dist)
   vel.angular.z = 0.0;
 
   std_msgs::Float32 goal;
-  //goal.data = canZDist + offset + dist - preset;
-  goal.data = dist;
+  goal.data = canZDist + offset + dist - preset;
+  //goal.data = dist;
   
   fork_pub.publish(goal);
 
@@ -498,6 +498,8 @@ int main(int argc, char** argv)
 
   move(pickup1.x, pickup1.y, pickup1.z, pickup1.w);
 
+  lift(0.0);
+
   line_up_x();
 
   approach_can(0.25); //found experimentally
@@ -515,8 +517,6 @@ int main(int argc, char** argv)
   approach_can(0.90);
 
   move(init.x, init.y, init.z, init.w);
-
-  //lift(0.0);
 
   return 0;
 }
